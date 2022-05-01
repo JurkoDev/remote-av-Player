@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+ws<input id="ws" type="url">
+<button type="button" onclick="ws_connect()">connect</button>
+
+<button type="button"onclick="fullscreen()">fullscreen</button>
+video
+<input id="video" width="10">
+audio
+<input id="audio" width="10">
+debug url
+<input id="transform" width="10">
+<button type="button" onclick="loadcontent()">load</button>
+
+<div id=frames>
+<audio id="audioframe" controls="controls" src=""></audio>
+<video id="videoframe" width="960" height="540" controls="controls" src=""></video>
+</div>
+
+<button type="button" onclick="playcontent()">play</button>
+<button type="button" onclick="pausecontent()">pause</button>
+
+
+<script>
+var queue = {"lists":["temp","my_likes"],"list_input_vals":[{"list":"temp","list_input_index":"0","list_input_index_play":"0"},{"list":"my_likes","list_input_index":"0","list_input_index_play":"0"}],"temp":[{"link":"https://youtu.be/9w5OAUuGu8w","label":"Brass"},{"link":"https://youtu.be/_2Vc_k8Tqgg","label":"Oracle"},{"link":"https://youtu.be/rcSK4Ep4Um4","label":"Slemyatsya pacany"},{"link":"https://youtu.be/NLSq2PV2WNg","label":"Head & Heart (feat. MNEK)"}],"my_likes":[{"link":"https://youtu.be/9w5OAUuGu8w","label":"Brass"},{"link":"https://youtu.be/_2Vc_k8Tqgg","label":"Oracle"},{"link":"https://youtu.be/d4EcpA78Fcg","label":"Big Dick"},{"link":"https://youtu.be/rcSK4Ep4Um4","label":"Slemyatsya pacany"},{"link":"https://youtu.be/1airplq2v2s","label":"Greedy (feat. Swiblet)"},{"link":"https://youtu.be/225qTJRs9gE","label":"When Can I See You Again? (From \"Wreck-It Ralph\"/Soundtrack Version)"},{"link":"https://youtu.be/Tcb0ipQF5pU","label":"Takai - Rhythm Thief (Looting The Lourve) remix"},{"link":"https://youtu.be/vuJ2V-9GhBo","label":"Tremor (Sensation 2014 Anthem)"},{"link":"https://youtu.be/-5pN-p8qRoM","label":"3 2 1 DROP IT"},{"link":"https://youtu.be/LN0SWHTbgGM","label":"Cico band feat. Rendy - Kelovacky"},{"link":"https://youtu.be/zKLFoTrsS2I","label":"Cico band feat. Rendy - Party ( official video )"},{"link":"https://youtu.be/RGSMixtN_7k","label":"Ona ľubi pomaranče"},{"link":"https://youtu.be/FyZWr2wm8B0","label":"Die Young"},{"link":"https://youtu.be/WUu0YvPX69E","label":"Right Round (feat. Ke$ha)"},{"link":"https://youtu.be/dfk6i41GCNo","label":"Centuries"},{"link":"https://youtu.be/NLSq2PV2WNg","label":"Head & Heart (feat. MNEK)"},{"link":"https://youtu.be/naY7omm4-iI","label":"Perfect Strangers"},{"link":"https://youtu.be/rWy1w7WXeq0","label":"Chocolate (A Choco Choco) lyrics"},{"link":"https://youtu.be/ST44PvR5xR4","label":"Sweet Dreams (Are Made of This) (From \"Paris is Burning\")"},{"link":"https://youtu.be/9J85VEM45sw","label":"Dschinghis Khan - Moskau (NIVIRO Hardstyle Remix)"},{"link":"https://youtu.be/Nge5fpC_5iU","label":"Moskau (Long Version)"},{"link":"https://youtu.be/uYN0VbbQTP8","label":"Mr. Saxobeat (Radio Edit)"},{"link":"https://youtu.be/Y7n5JX0zxSw","label":"Gentleman"},{"link":"https://youtu.be/enOtfOGqm-0","label":"Everytime We Touch (Radio Edit)"},{"link":"https://youtu.be/gPZjxwEFCZw","label":"Ready For Love"},{"link":"https://youtu.be/DtVWuWWJ_cM","label":"A Neverending Dream"},{"link":"https://youtu.be/EDt3rQxb_mU","label":"Bad Boy"},{"link":"https://youtu.be/Qge8Jk5oXmw","label":"U-turn"},{"link":"https://youtu.be/OPvx_3uR93U","label":"Blah Blah Blah"},{"link":"https://youtu.be/vd3cv_FW5Jo","label":"Hot N Cold"},{"link":"https://youtu.be/LszrNDvIivU","label":"Danza Kuduro (Version MTO)"},{"link":"https://youtu.be/pd6agz_qL4c","label":"Decibely lásky"},{"link":"https://youtu.be/q8XQRfTgaCE","label":"Get Ready"},{"link":"https://youtu.be/Aeb2oy4Qi4E","label":"Faradenza"},{"link":"https://youtu.be/evHIaUZ0KtQ","label":"Sexy And I Know It"},{"link":"https://youtu.be/c_sNBS-9Ras","label":"Crab Rave"},{"link":"https://youtu.be/mVw5KiGwqaQ","label":"Rockabye (feat. Sean Paul & Anne-Marie)"},{"link":"https://youtu.be/V_lF4cP3ifM","label":"Heartbass (feat. Tommy Cash)"},{"link":"https://youtu.be/Yv4P63jJEoI","label":"Jägermeister"},{"link":"https://youtu.be/lygg5Ju0nNU","label":"We No Speak Americano (Original Mix)"},{"link":"https://youtu.be/n55j6OfP25k","label":"Firework"},{"link":"https://youtu.be/pTLecrGrWY4","label":"Ma Baker (ZDF Starparade 02.06.1977)"},{"link":"https://youtu.be/hCFxVNm98Rs","label":"Last Friday Night (T.G.I.F.)"},{"link":"https://youtu.be/d2xrFAJMIq0","label":"Sexy Bitch (feat. Akon)"},{"link":"https://youtu.be/2Q0ezAeUlXg","label":"Trombone"},{"link":"https://youtu.be/caAWiyz4Z1Y","label":"Tarantino (feat. STARX)"},{"link":"https://youtu.be/DeiZes4wFnQ","label":"With Russia from Love"},{"link":"https://youtu.be/deopIvnjJSs","label":"Public Enemy"},{"link":"https://youtu.be/ILc46etFjcc","label":"Polyushko Polye (feat. Killaheadz)"},{"link":"https://youtu.be/rcSK4Ep4Um4","label":"Slemyatsya pacany"},{"link":"https://youtu.be/pS5d77DQHOI","label":"Tokyo Drift (Fast & Furious)"},{"link":"https://youtu.be/trqszNocEhI","label":"Take On Me (Symphonic Version)"},{"link":"https://youtu.be/jtsHy6KMtsA","label":"Take on Me (2015 Remaster)"},{"link":"https://youtu.be/fTFxE32onKs","label":"GAS GAS GAS"},{"link":"https://youtu.be/iR1sAex__VA","label":"Waiting For Love"},{"link":"https://youtu.be/kQ4-R5kBkp0","label":"Mamma Mia"},{"link":"https://youtu.be/Ah0srVZq9ac","label":"I Took A Pill In Ibiza (Seeb Remix)"},{"link":"https://youtu.be/Xugs-grBc0g","label":"All Bets Are Off"},{"link":"https://youtu.be/MBfdsAt1zME","label":"Chihuahua (Radio Version)"},{"link":"https://youtu.be/gYuT13E9JX8","label":"Turn It Up (feat. Tommy Cash)"},{"link":"https://youtu.be/YJ9l4hHQVrA","label":"She Wants Me Dead"},{"link":"https://youtu.be/QrnNEQAOLKw","label":"FILV - BALENCIAGA (Y3MR$ Remix) Lyrics🎵"},{"link":"https://youtu.be/hqDShBBrJ5A","label":"Zijeme len raz"},{"link":"https://youtu.be/64oYM_ZVoT8","label":"Arriba (feat. Clean Bandit)"},{"link":"https://youtu.be/pSVbF6DGH9U","label":"Around the World (La La La La La) (Radio Version)"},{"link":"https://youtu.be/r6FVk2k4qsM","label":"2 UNLIMITED - No Limit (Rap Version) (Official Music Video)"},{"link":"https://youtu.be/gne9jY-EDm4","label":"No Limit"},{"link":"https://youtu.be/iCV7IoVGYgo","label":"The King"},{"link":"https://youtu.be/82y4XIYue0c","label":"[I Want To] Be Someone"},{"link":"https://youtu.be/rlQ0NdDsaw8","label":"DADDY (feat. CL of 2NE1)"},{"link":"https://youtu.be/ozcKdmjFE1I","label":"Rave in the Grave"},{"link":"https://youtu.be/1f053VrnFZk","label":"Little Swing"},{"link":"https://youtu.be/YuuxEgx-dVE","label":"TheFatRat - Monody (A Live Performance)"},{"link":"https://youtu.be/Los42buIecE","label":"OMFG - Everybody"},{"link":"https://youtu.be/A5wBk9946Ew","label":"Astronomia"},{"link":"https://youtu.be/aaIjs8K3oYo","label":"Hello"},{"link":"https://youtu.be/W4C-NEWrnSQ","label":"The Nights"},{"link":"https://youtu.be/pn-1EEvYc6k","label":"Stronzo"},{"link":"https://youtu.be/AilByibCKWc","label":"Life in da Trash"},{"link":"https://youtu.be/qRHM9uMRgsM","label":"Hateful Love (feat. Danny Zuckerman)"},{"link":"https://youtu.be/swweNLvmSf8","label":"Barbie Girl"},{"link":"https://youtu.be/uC6Z_HtSd-A","label":"The Sign"},{"link":"https://youtu.be/K7SEc_dFQZY","label":"AMONG US"},{"link":"https://youtu.be/9usU9GvqovQ","label":"Love Is Dead"},{"link":"https://youtu.be/e1c0s82UHfA","label":"To Party (feat. DenDerty, Danny Zuckerman)"},{"link":"https://youtu.be/7cPhKwRF4oY","label":"Salvatore Ganacci - Heartbass (feat. Tommy Cash) [Official Audio]"},{"link":"https://youtu.be/dCErEM6h-k0","label":"Spoiler Alert - S3RL feat DEFI BRILATOR"},{"link":"https://youtu.be/NkRkuI0ZgX0","label":"Salvatore Ganacci - Horse (Official Music Video)"},{"link":"https://youtu.be/O6insUApfwU","label":"HBKN - Summer Never Dies - Russian Happy Hardcore"},{"link":"https://youtu.be/-QHha1zko1A","label":"LITTLE BIG - AK-47 (music video)"},{"link":"https://youtu.be/5usk6azyvYI","label":"Liar"},{"link":"https://youtu.be/qAPZoXecOzY","label":"PYRO (Extended Mix)"},{"link":"https://youtu.be/Y9i2rPVSEok","label":"Freaks (Radio Edit)"},{"link":"https://youtu.be/wNDNeGgY8TU","label":"Mamma Maria (Piccolo Grandi per СIAO 2020)"},{"link":"https://youtu.be/fLqOvpK72FM","label":"Pavol Hammel - ZRPŠ"},{"link":"https://youtu.be/VrtjHK8c6Ec","label":"Supreme"},{"link":"https://youtu.be/Ypw7cVsnQxU","label":"Roses (Imanbek Remix)"},{"link":"https://youtu.be/KQ8pG-d40aA","label":"Daft Punk - Harder, Better, Faster, Stronger (Far Out Remix)"},{"link":"https://youtu.be/c8df7fD-Ox8","label":"AMONG US Theme Song (Magentium EDM Remix)"},{"link":"https://youtu.be/dslO-3GgenY","label":"SABATON - No Bullets Fly (Animated Story Video)"},{"link":"https://youtu.be/ejyA22n-_mc","label":"Lojzo - Pridružená výroba"},{"link":"https://youtu.be/iNi68-YdXTE","label":"Among Us (Trap Edition)"},{"link":"https://youtu.be/kPeMSkAUkA0","label":"Mario Theme Song (PedroDJDaddy Trap 2020 Remix)"},{"link":"https://youtu.be/9JQU_3Mx6xY","label":"It's the Most Wonderful Time of the Year"},{"link":"https://youtu.be/Eht9W25tDZo","label":"Scatman"},{"link":"https://youtu.be/7neipvZ_H0c","label":"Scatman's World"},{"link":"https://youtu.be/bPjHDXLGG4U","label":"I`m OK"},{"link":"https://youtu.be/BJ0xBCwkg3E","label":"Running in the 90's"},{"link":"https://youtu.be/F22DCvJ24Eg","label":"Marble Machine - Band Version LIVE"},{"link":"https://youtu.be/8a0thYvYCNE","label":"The Last Stand"},{"link":"https://youtu.be/3MRSLSQdelI","label":"The Attack of the Dead Men"},{"link":"https://youtu.be/VWQ-e0qXX0M","label":"In My Mind"},{"link":"https://youtu.be/33sBoClL16o","label":"We No Speak Americano"},{"link":"https://youtu.be/68ugkg9RePc","label":"Eiffel 65 - Blue (Da Ba Dee) [Gabry Ponte Ice Pop Mix] (Original Video with subtitles)"},{"link":"https://youtu.be/B63qlootuG0","label":"Shiroyama"},{"link":"https://youtu.be/62floj37NhM","label":"Kristina - Jablcko"},{"link":"https://youtu.be/roEMP474x_Q","label":"Jožin z bažin"},{"link":"https://youtu.be/i9BupglHdtM","label":"SABATON - The Last Stand (Official Music Video)"},{"link":"https://youtu.be/ReBDW-4mtyo","label":"David Bulla - Unexpected [NCS Release]"},{"link":"https://youtu.be/mfJhMfOPWdE","label":"Armin van Buuren - Blah Blah Blah (Official Lyric Video)"},{"link":"https://youtu.be/btrzs54s1Rc","label":"Jonas Blue - Rise ft. Jack & Jack (Official Video)"},{"link":"https://youtu.be/OFWT4yfPdjo","label":"Desmeon - Back From The Dead [NCS Release]"},{"link":"https://youtu.be/cNcy3J4x62M","label":"Elektronomia - Limitless [NCS Release]"},{"link":"https://youtu.be/TW9d8vYrVFQ","label":"Elektronomia - Sky High [NCS Release]"},
+{"link":"https://youtu.be/fzNMd3Tu1Zw","label":"Elektronomia - Energy [NCS Release]"},{"link":"https://youtu.be/ZQTd8_838Oc","label":"UNO"},{"link":"https://youtu.be/Jxbu80okI_U","label":"LITTLE BIG - ROCK–PAPER–SCISSORS (Official Music Video)"},{"link":"https://youtu.be/ADlGkXAz1D0","label":"LITTLE BIG - GO BANANAS (Official Music Video)"},{"link":"https://youtu.be/SsFI40bXROs","label":"LITTLE BIG — I'M OK (official music video)"},{"link":"https://youtu.be/RhMYBfF7-hE","label":"LITTLE BIG - HYPNODANCER (Official Music Video)"},{"link":"https://youtu.be/SQHdFAm7g7E","label":"Controlling a MASSIVE pipe organ with my computer"},{"link":"https://youtu.be/ng3XUABcwDw","label":"Riton, Oliver Heldens - Turn Me On (Lyric Video) ft. Vula"},{"link":"https://youtu.be/ULTtWUZhD9c","label":"Robbie Williams - Supreme"},{"link":"https://youtu.be/_ovdm2yX4MA","label":"Avicii - Levels"},{"link":"https://youtu.be/dwtHuPlSZ3Y","label":"North Korea propaganda music"},{"link":"https://youtu.be/_iBPt1aoA7E","label":"Juditha Triumphans"},{"link":"https://youtu.be/YTIDHSRA9xk","label":"Glory to Our Tsar chorus from the Russian opera Ivan Susanin by Mikhail Glinka - HQ audio"},{"link":"https://youtu.be/cE0wfjsybIQ","label":"Noisestorm - Crab Rave (Official Music Video)"},{"link":"https://youtu.be/msSc7Mv0QHY","label":"J.Geco - Chicken Song"},{"link":"https://youtu.be/mxzgwJ8tSE0","label":"Wang Rong Rollin - Chick Chick (王蓉 - 小雞小雞) MV"},{"link":"https://youtu.be/fKopy74weus","label":"Imagine Dragons - Thunder"},{"link":"https://youtu.be/wnJ6LuUFpMo","label":"J Balvin, Willy William - Mi Gente (Official Video)"},{"link":"https://youtu.be/cdNgo-E95f0","label":"Riton x Oliver Heldens - Turn Me On ft. Vula"},{"link":"https://youtu.be/wyx6JDQCslE","label":"LMFAO - Sexy and I Know It (Official Video)"},{"link":"https://youtu.be/Bznxx12Ptl0","label":"AronChupa, Little Sis Nora - I'm an Albatraoz | OFFICIAL VIDEO"},{"link":"https://youtu.be/t4H_Zoh7G5A","label":"Jennifer Lopez - On The Floor ft. Pitbull"},{"link":"https://youtu.be/y6Sxv-sUYtM","label":"Pharrell Williams - Happy (Official Music Video)"},{"link":"https://youtu.be/HAFVJAKpzFk","label":"GLP Prolight+Sound 2017 Show"},{"link":"https://youtu.be/1t_sMynan_k","label":"LITTLE BIG – FARADENZA (official music video)"},{"link":"https://youtu.be/5ArkY_x-bI4","label":"Sikdope - Follow (Lyric Video)"}]}
+var socket
+var pause_status = false
+document.getElementById("ws").value = "ws://127.0.0.1:8765"
+function ws_connect() {
+socket = new WebSocket(document.getElementById("ws").value);
+
+// Connection opened
+socket.addEventListener('open', function (event) {
+    socket.send(JSON.stringify({"command":"init"}));
+});
+
+// Listen for messages
+socket.addEventListener('message', function (event) {
+    var message_json = JSON.parse(event.data);
+    if(message_json.command == "media_play"){
+        document.getElementById("videoframe").setAttribute("src", message_json.link);
+    }
+    if(message_json.command == "media_play_youtube"){
+        document.getElementById("transform").value = message_json.link
+    }
+    if(message_json.command == "media_play_youtube_video"){
+        document.getElementById("video").value = message_json.link
+    }
+    if(message_json.command == "media_play_youtube_audio"){
+        document.getElementById("audio").value = message_json.link
+    }
+    if(message_json.command == "media_frame_play"){
+        playcontent()
+    }
+    if(message_json.command == "media_frame_pause"){
+        pausecontent()
+    }
+    if(message_json.command == "media_frame_load"){
+        loadcontent()
+    }
+    if(message_json.command == "media_stop"){
+        document.getElementById("videoframe").setAttribute("src","https://firebasestorage.googleapis.com/v0/b/jurko-web-host.appspot.com/o/10secondsofnothing.mp3?alt=media&token=d2641726-228a-4bd3-8cfd-1bd9708f0f92");
+    }
+    if(message_json.command == "sync_now"){
+        queue = message_json.queue
+    }
+    if(message_json.command == "sync_request"){
+        sync_now()
+    }
+});
+}
+ws_connect()
+function playcontent() {
+    var frameaudio = document.getElementById("audioframe");
+    var framevideo = document.getElementById("videoframe");
+    frameaudio.play();
+    framevideo.play();
+}
+function pausecontent() {
+    var frameaudio = document.getElementById("audioframe");
+    var framevideo = document.getElementById("videoframe");
+    document.getElementById("videoframe").currentTime = document.getElementById("audioframe").currentTime
+    frameaudio.pause();
+    framevideo.pause();
+}
+function loadcontent() {
+    pause_status = false
+    document.getElementById("audioframe").setAttribute("src",document.getElementById("audio").value);
+    document.getElementById("videoframe").setAttribute("src",document.getElementById("video").value);
+}
+function autoload() {
+    socket.send(JSON.stringify({"command":"auto_load"}))
+}
+function fullscreen() {
+    document.getElementById("videoframe").requestFullscreen()
+}
+function sync_now() {
+    socket.send(JSON.stringify({"command":"sync_now","queue":queue}))
+}
+
+document.getElementById("videoframe").addEventListener('canplaythrough', (event) => {
+    if(pause_status == false){
+        document.getElementById("videoframe").currentTime = document.getElementById("audioframe").currentTime
+        playcontent()
+        pause_status = true
+    }
+    
+});
+document.getElementById("videoframe").addEventListener('ended', (event) => {
+    loadcontent()
+});
+</script>
+</body>
+</html>
