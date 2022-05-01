@@ -1,2 +1,2 @@
 # remote-av-Player
-a remote 
+a remote controller and player combo in html
