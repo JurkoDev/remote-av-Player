@@ -1,5 +1,6 @@
 # remote-av-Player
 a remote controller and player combo in html
+funguje na chrome v pocitaci a na androide
 
 web server setup
 v konzole v priecinku s tymto kodom
