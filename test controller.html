@@ -55,6 +55,11 @@ function ws_connect() {
         sync_request();
     });
 
+    // Connection closed
+    socket.addEventListener('close', function (event) {
+        document.getElementById("ws_div").hidden = false
+    });
+
     // Listen for messages
     socket.addEventListener('message', function (event) {
         var message_json = JSON.parse(event.data);
