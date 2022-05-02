@@ -39,8 +39,15 @@ socket.addEventListener('open', function (event) {
 
 // Connection closed
 socket.addEventListener('close', function (event) {
+    console.log("ws connection closed")
     ws_connect()
 });
+
+// Connection closed
+socket.addEventListener('error', function (event) {
+    console.log('WebSocket error: ', event, "\n retry with ws_connect()")
+});
+
 
 // Listen for messages
 socket.addEventListener('message', function (event) {
@@ -50,6 +57,7 @@ socket.addEventListener('message', function (event) {
     }
     if(message_json.command == "media_play_youtube"){
         document.getElementById("transform").value = message_json.link
+        console.log("loading youtube link");
     }
     if(message_json.command == "media_play_youtube_video"){
         document.getElementById("video").value = message_json.link
@@ -59,9 +67,11 @@ socket.addEventListener('message', function (event) {
     }
     if(message_json.command == "media_frame_play"){
         playcontent()
+        console.log("started playing");
     }
     if(message_json.command == "media_frame_pause"){
         pausecontent()
+        console.log("paused");
     }
     if(message_json.command == "media_frame_load"){
         loadcontent()
@@ -105,16 +115,22 @@ function fullscreen() {
 function sync_now() {
     socket.send(JSON.stringify({"command":"sync_now","queue":queue}))
 }
-
+document.getElementById("videoframe").addEventListener('timeupdate', (event) => {
+    if(+document.getElementById("videoframe").duration - +document.getElementById("videoframe").currentTime < 60){
+        socket.send(JSON.stringify({"command":"panic_next_video"}))
+    }  
+});
 document.getElementById("videoframe").addEventListener('canplaythrough', (event) => {
     if(pause_status == false){
         document.getElementById("videoframe").currentTime = document.getElementById("audioframe").currentTime
         playcontent()
         pause_status = true
+        console.log("autoplaying load");
     }
     
 });
 document.getElementById("videoframe").addEventListener('ended', (event) => {
+    console.log("autoplaying end");
     loadcontent()
 });
 </script>
