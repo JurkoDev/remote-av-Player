@@ -40,7 +40,8 @@ socket.addEventListener('open', function (event) {
 // Connection closed
 socket.addEventListener('close', function (event) {
     console.log("ws connection closed")
-    ws_connect()
+    console.log("use ws_connect() to try again");
+    console.log("change ip using \n",'document.getElementById("ws").value = "ws://127.0.0.1:8765"');
 });
 
 // Connection closed
