@@ -48,6 +48,13 @@ ws server start
 windows + linux:
 > python test.py
 
+contoller
+> http://serverip:5000/controller
+
+player
+> http://serverip:5000/player
+
+
 
 conroller controls:
 ![image](https://user-images.githubusercontent.com/50539591/166234683-f752109b-a738-456d-998a-f3a2b508618d.png)
