@@ -34,6 +34,12 @@ start:
 
 web server start
 v konzole v priecinku s tymto kodom
+
+skratka pre linux v rpi:
+> sh /home/pi/Desktop/remote-av-Player/flask.sh
+
+> sh /home/pi/Desktop/remote-av-Player/ws.sh
+
 windows:
 > venv\Scripts\activate
 
