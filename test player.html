@@ -123,10 +123,11 @@ document.getElementById("videoframe").addEventListener('timeupdate', (event) => 
 });
 document.getElementById("videoframe").addEventListener('canplaythrough', (event) => {
     if(pause_status == false){
+        pausecontent()
         document.getElementById("videoframe").currentTime = document.getElementById("audioframe").currentTime
-        playcontent()
         pause_status = true
         console.log("autoplaying load");
+        playcontent()
     }
     
 });
