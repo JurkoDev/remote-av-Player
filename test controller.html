@@ -12,6 +12,7 @@ ws<input id="ws" type="url">
     <button type="button"onclick="play()">play</button>
     label<input id="label" type="text">
     <button type="button"onclick="youtube_video_name()">get name</button>
+    <button type="button"onclick="youtube_vide_play()">youtube play</button>
     <button type="button"onclick="clear()">clear</button>
 </div>
 
@@ -134,6 +135,9 @@ function clear() {
 function youtube_video_name() {
     socket.send(JSON.stringify({"command":"media_play_youtube_name","link":document.getElementById("url").value}))
     youtube_name_enable = true 
+}
+function youtube_vide_play() {
+    socket.send(JSON.stringify({"command":"media_play_youtube","link":document.getElementById("url").value}))
 }
 
 
