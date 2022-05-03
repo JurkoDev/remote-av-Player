@@ -28,6 +28,7 @@ var queue = {"lists":["temp","my_likes"],"list_input_vals":[{"list":"temp","list
 {"link":"https://youtu.be/fzNMd3Tu1Zw","label":"Elektronomia - Energy [NCS Release]"},{"link":"https://youtu.be/ZQTd8_838Oc","label":"UNO"},{"link":"https://youtu.be/Jxbu80okI_U","label":"LITTLE BIG - ROCK–PAPER–SCISSORS (Official Music Video)"},{"link":"https://youtu.be/ADlGkXAz1D0","label":"LITTLE BIG - GO BANANAS (Official Music Video)"},{"link":"https://youtu.be/SsFI40bXROs","label":"LITTLE BIG — I'M OK (official music video)"},{"link":"https://youtu.be/RhMYBfF7-hE","label":"LITTLE BIG - HYPNODANCER (Official Music Video)"},{"link":"https://youtu.be/SQHdFAm7g7E","label":"Controlling a MASSIVE pipe organ with my computer"},{"link":"https://youtu.be/ng3XUABcwDw","label":"Riton, Oliver Heldens - Turn Me On (Lyric Video) ft. Vula"},{"link":"https://youtu.be/ULTtWUZhD9c","label":"Robbie Williams - Supreme"},{"link":"https://youtu.be/_ovdm2yX4MA","label":"Avicii - Levels"},{"link":"https://youtu.be/dwtHuPlSZ3Y","label":"North Korea propaganda music"},{"link":"https://youtu.be/_iBPt1aoA7E","label":"Juditha Triumphans"},{"link":"https://youtu.be/YTIDHSRA9xk","label":"Glory to Our Tsar chorus from the Russian opera Ivan Susanin by Mikhail Glinka - HQ audio"},{"link":"https://youtu.be/cE0wfjsybIQ","label":"Noisestorm - Crab Rave (Official Music Video)"},{"link":"https://youtu.be/msSc7Mv0QHY","label":"J.Geco - Chicken Song"},{"link":"https://youtu.be/mxzgwJ8tSE0","label":"Wang Rong Rollin - Chick Chick (王蓉 - 小雞小雞) MV"},{"link":"https://youtu.be/fKopy74weus","label":"Imagine Dragons - Thunder"},{"link":"https://youtu.be/wnJ6LuUFpMo","label":"J Balvin, Willy William - Mi Gente (Official Video)"},{"link":"https://youtu.be/cdNgo-E95f0","label":"Riton x Oliver Heldens - Turn Me On ft. Vula"},{"link":"https://youtu.be/wyx6JDQCslE","label":"LMFAO - Sexy and I Know It (Official Video)"},{"link":"https://youtu.be/Bznxx12Ptl0","label":"AronChupa, Little Sis Nora - I'm an Albatraoz | OFFICIAL VIDEO"},{"link":"https://youtu.be/t4H_Zoh7G5A","label":"Jennifer Lopez - On The Floor ft. Pitbull"},{"link":"https://youtu.be/y6Sxv-sUYtM","label":"Pharrell Williams - Happy (Official Music Video)"},{"link":"https://youtu.be/HAFVJAKpzFk","label":"GLP Prolight+Sound 2017 Show"},{"link":"https://youtu.be/1t_sMynan_k","label":"LITTLE BIG – FARADENZA (official music video)"},{"link":"https://youtu.be/5ArkY_x-bI4","label":"Sikdope - Follow (Lyric Video)"}]}
 var socket
 var pause_status = false
+var autoload_toggle = false
 document.getElementById("ws").value = "ws://127.0.0.1:8765"
 function ws_connect() {
 socket = new WebSocket(document.getElementById("ws").value);
@@ -104,11 +105,9 @@ function pausecontent() {
 }
 function loadcontent() {
     pause_status = false
+    autoload_toggle = true
     document.getElementById("audioframe").setAttribute("src",document.getElementById("audio").value);
     document.getElementById("videoframe").setAttribute("src",document.getElementById("video").value);
-}
-function autoload() {
-    socket.send(JSON.stringify({"command":"auto_load"}))
 }
 function fullscreen() {
     document.getElementById("videoframe").requestFullscreen()
@@ -117,9 +116,12 @@ function sync_now() {
     socket.send(JSON.stringify({"command":"sync_now","queue":queue}))
 }
 document.getElementById("videoframe").addEventListener('timeupdate', (event) => {
-    if(+document.getElementById("videoframe").duration - +document.getElementById("videoframe").currentTime < 60){
-        socket.send(JSON.stringify({"command":"panic_next_video"}))
-    }  
+    if(autoload_toggle == true){
+        if(+document.getElementById("videoframe").duration - +document.getElementById("videoframe").currentTime < 60){
+            socket.send(JSON.stringify({"command":"autoload"}))
+            autoload_toggle = false
+        }
+    } 
 });
 document.getElementById("videoframe").addEventListener('canplaythrough', (event) => {
     if(pause_status == false){
