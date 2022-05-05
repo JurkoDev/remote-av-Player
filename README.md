@@ -4,6 +4,9 @@ funguje na chrome v pocitaci a na androide
 
 web server setup
 v konzole v priecinku s tymto kodom
+
+windws zlachcenie spusti setup.bat
+
 windows:
 > py -3 -m venv venv
 
@@ -34,6 +37,8 @@ start:
 
 web server start
 v konzole v priecinku s tymto kodom
+
+skratka pre windows spusti flask_start.bat a ws_start.bat
 
 skratka pre linux v rpi:
 > sh /home/pi/Desktop/remote-av-Player/flask.sh
