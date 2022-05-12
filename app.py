@@ -9,12 +9,9 @@ def player():
     f.close()
     return apphtmlp
 
-@app.route('/window')
+@app.route('/')
 def window():
-    f = open("test player window.html", "r")
-    apphtmlw = f.read()
-    f.close()
-    return apphtmlw
+    return "goto /controller or /player"
 
 @app.route('/controller')
 def controller():
