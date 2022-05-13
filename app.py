@@ -19,3 +19,17 @@ def controller():
     apphtmlc = f.read()
     f.close()
     return apphtmlc
+
+@app.route('/brass')
+def brass():
+    f = open("Brass.mp4", "r")
+    apphtmlc = f.read()
+    f.close()
+    return apphtmlc
+
+@app.route('/headheart')
+def headheart():
+    f = open("Head & Heart (feat. MNEK).mp4", "r")
+    apphtmlc = f.read()
+    f.close()
+    return apphtmlc
