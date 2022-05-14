@@ -50,7 +50,7 @@ var queue = {"lists":["temp","my_likes"],"list_input_vals":[{"list":"temp","list
 var socket
 var youtube_name_enable = false
 var sync_request_off = false
-var autoload_list
+var autoload_list = null
 document.getElementById("ws").value = "ws://127.0.0.1:8765"
 document.getElementById("frame").setAttribute("src","");
 document.getElementById("preview").hidden = true
@@ -91,10 +91,10 @@ function ws_connect() {
             }
         }
         if(message_json.command == "autoload"){
-            if(document.getElementById("autoload_toggle").checked === true){
+            if(document.getElementById("autoload_toggle").checked == true){
                 autoload_play()
             }
-            if(document.getElementById("autoload_toggle_off_alert").checked === true){
+            if(document.getElementById("autoload_toggle_off_alert").checked == true){
                 document.getElementById("autoload-warning").hidden = false
             }
         }
@@ -161,20 +161,24 @@ function youtube_vide_play() {
 }
 function autoload_play() {
     if(document.getElementById("autoload_toggle_youtube").checked === true){
-        var queue_index_play = document.getElementsByName(list_name)[3].value
-        socket.send(JSON.stringify({"command":"media_play_youtube","link":queue[list_name][queue_index_play]["link"]}))
+        queue_play_next_youtube(autoload_list)
     }else{
-        var queue_index_play = document.getElementsByName(list_name)[3].value
-        socket.send(JSON.stringify({"command":"media_play","link":queue[list_name][queue_index_play]["link"]}))
+        queue_play_next(autoload_list)
     }
 }
 function autoload_select(list_name) {
+    var autoplay_checkbox_status = document.getElementsByName(list_name)[4].checked
     for (let i = 0; i < queue.list_input_vals.length; i++) {
         var list_name_compare = queue["lists"][i]
         document.getElementsByName(list_name_compare)[4].checked = false
     }
-    document.getElementsByName(list_name)[4].checked = true
-    autoload_list = list_name
+    document.getElementsByName(list_name)[4].checked = autoplay_checkbox_status
+    if (autoplay_checkbox_status = true) {
+        autoload_list = list_name
+    }else{
+        autoload_list = null
+    }
+    
 }
 
 function queue_add(list_name) {
@@ -253,6 +257,9 @@ function lists_update_data() {
         }
         var temp_class = document.getElementsByName(queue.lists[temp])
         temp_class[5].innerHTML = temp_label.join("<br />")
+    }
+    if (autoload_list == null) {
+        setTimeout(() => {  document.getElementsByName(autoload_list)[4].checked = true}, 100);
     }
 }
 function lists_update() {
