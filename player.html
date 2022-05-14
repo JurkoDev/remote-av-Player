@@ -29,6 +29,7 @@ var queue = {"lists":["temp","my_likes"],"list_input_vals":[{"list":"temp","list
 var socket
 var pause_status = false
 var autoload_toggle = false
+var no_audio = true
 document.getElementById("ws").value = "ws://127.0.0.1:8765"
 function ws_connect() {
 socket = new WebSocket(document.getElementById("ws").value);
@@ -55,7 +56,7 @@ socket.addEventListener('error', function (event) {
 socket.addEventListener('message', function (event) {
     var message_json = JSON.parse(event.data);
     if(message_json.command == "media_play"){
-        document.getElementById("videoframe").setAttribute("src", message_json.link);
+        document.getElementById("video").value = message_json.link
     }
     if(message_json.command == "media_play_youtube"){
         document.getElementById("transform").value = message_json.link
@@ -99,13 +100,20 @@ function playcontent() {
 function pausecontent() {
     var frameaudio = document.getElementById("audioframe");
     var framevideo = document.getElementById("videoframe");
-    document.getElementById("videoframe").currentTime = document.getElementById("audioframe").currentTime
+    if (no_audio == true) {
+        document.getElementById("videoframe").currentTime = document.getElementById("audioframe").currentTime
+    }
     frameaudio.pause();
     framevideo.pause();
 }
 function loadcontent() {
     pause_status = false
     autoload_toggle = true
+    if (document.getElementById("audio").value == null) {
+        no_audio = true
+    }else{
+        no_audio = false
+    }
     document.getElementById("audioframe").setAttribute("src",document.getElementById("audio").value);
     document.getElementById("videoframe").setAttribute("src",document.getElementById("video").value);
 }
@@ -126,7 +134,9 @@ document.getElementById("videoframe").addEventListener('timeupdate', (event) => 
 document.getElementById("videoframe").addEventListener('canplaythrough', (event) => {
     if(pause_status == false){
         pausecontent()
-        document.getElementById("videoframe").currentTime = document.getElementById("audioframe").currentTime
+        if (no_audio == true) {
+            document.getElementById("videoframe").currentTime = document.getElementById("audioframe").currentTime
+        }
         pause_status = true
         console.log("autoplaying load");
         playcontent()
