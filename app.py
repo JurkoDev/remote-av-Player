@@ -9,16 +9,27 @@ def player():
     f.close()
     return apphtmlp
 
-@app.route('/window')
+@app.route('/')
 def window():
-    f = open("test player window.html", "r")
-    apphtmlw = f.read()
-    f.close()
-    return apphtmlw
+    return "goto /controller or /player"
 
 @app.route('/controller')
 def controller():
     f = open("test controller.html", "r")
+    apphtmlc = f.read()
+    f.close()
+    return apphtmlc
+
+@app.route('/brass')
+def brass():
+    f = open("Brass.mp4", "r")
+    apphtmlc = f.read()
+    f.close()
+    return apphtmlc
+
+@app.route('/headheart')
+def headheart():
+    f = open("Head & Heart (feat. MNEK).mp4", "r")
     apphtmlc = f.read()
     f.close()
     return apphtmlc
