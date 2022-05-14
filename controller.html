@@ -12,7 +12,8 @@ ws<input id="ws" type="url">
     <button type="button"onclick="play()">play</button>
     label<input id="label" type="text">
     <button type="button"onclick="youtube_video_name()">get name</button>
-    <button type="button"onclick="youtube_vide_play()">youtube play</button>
+    <button type="button"onclick="youtube_video_play()">youtube play</button>
+    <button type="button"onclick="youtube_video_offline()">youtube offline convert</button>
     <button type="button"onclick="clear()">clear</button>
 </div>
 <div id="autoload-warning"><p style="color:red;font-size:30px;">60 Seconds To End Load</p></div>
@@ -50,6 +51,7 @@ var queue = {"lists":["temp","my_likes"],"list_input_vals":[{"list":"temp","list
 var socket
 var youtube_name_enable = false
 var sync_request_off = false
+
 var autoload_list
 document.getElementById("ws").value = "ws://127.0.0.1:8765"
 document.getElementById("frame").setAttribute("src","");
@@ -89,6 +91,9 @@ function ws_connect() {
                 document.getElementById("label").value = message_json.note
                 youtube_name_enable = false
             }
+        }
+        if(message_json.command == "media_youtube_video_offline"){
+            document.getElementById("url").value = message_json.url
         }
         if(message_json.command == "autoload"){
             if(document.getElementById("autoload_toggle").checked === true){
@@ -156,8 +161,11 @@ function youtube_video_name() {
     socket.send(JSON.stringify({"command":"media_play_youtube_name","link":document.getElementById("url").value}))
     youtube_name_enable = true 
 }
-function youtube_vide_play() {
+function youtube_video_play() {
     socket.send(JSON.stringify({"command":"media_play_youtube","link":document.getElementById("url").value}))
+}
+function youtube_video_offline() {
+    socket.send(JSON.stringify({"command":"media_youtube_offline","link":document.getElementById("url").value}))
 }
 function autoload_play() {
     if(document.getElementById("autoload_toggle_youtube").checked === true){
