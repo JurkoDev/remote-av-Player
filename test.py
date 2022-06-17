@@ -12,6 +12,7 @@ async def echo(websocket):
         temp = json.loads(message)
         if temp["command"] == "media_youtube_offline":
             link = temp["link"]
+            print("dowloading " + link)
             stream = os.popen('cd C:\\Users\\jurko\Desktop\\firebase\\public && youtube-dl --no-call-home -o "%(id)s.mp4" ' + link)
             streamtemp = stream.read()
             print("dowload done")
