@@ -100,7 +100,7 @@ function playcontent() {
 function pausecontent() {
     var frameaudio = document.getElementById("audioframe");
     var framevideo = document.getElementById("videoframe");
-    if (no_audio == true) {
+    if (no_audio == false) {
         document.getElementById("videoframe").currentTime = document.getElementById("audioframe").currentTime
     }
     frameaudio.pause();

@@ -163,6 +163,9 @@ function youtube_video_name() {
 function youtube_video_play() {
     socket.send(JSON.stringify({"command":"media_play_youtube","link":document.getElementById("url").value}))
 }
+function youtube_video_play() {
+    socket.send(JSON.stringify({"command":"media_youtube_offline","link":document.getElementById("url").value}))
+}
 function autoload_play() {
     if(document.getElementById("autoload_toggle_youtube").checked === true){
         queue_play_next_youtube(autoload_list)
