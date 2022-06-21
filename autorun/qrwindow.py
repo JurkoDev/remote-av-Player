@@ -1,10 +1,13 @@
 import json
 import os
+import platform
 import socket
 import subprocess
 import threading
+from time import sleep
 import qrcode
 import urllib.parse
+import requests
 import tkinter
 from tkinter import *
 
@@ -12,6 +15,16 @@ globalconfig = {"ip": socket.gethostbyname(socket.gethostname()), "port": 5000}
 
 TKroot = tkinter.Tk()
 qrtextjson = json.dumps(globalconfig)
+
+
+def ping():
+    whiletemp = False
+    while whiletemp == False:
+        try:
+            r = requests.get('http://127.0.0.1:5000/')
+            whiletemp = r.status_code == 200
+        except:
+            sleep(10)    
 
 
 def qrgenerate():
@@ -45,32 +58,31 @@ def tkdestroy():
 
 
 def wsrun():
-    stream = os.popen(
-        "cd C:\\Users\\jurko\Desktop\\remote-av-Player\\autorun && py test.py")
-    temp = json.loads(stream.read())
-    print(temp)
     x = threading.Thread(target=tkdestroy, args=(), daemon=True)
-    x.start()
-    print("after destroy")
-    if temp["type"] == "chrome":
-        print("in chrome")
+    wsrunwhile = False
+    while wsrunwhile == False:
         stream = os.popen(
-            "cd C:\\Users\\jurko\Desktop\\remote-av-Player && py test.py")
-        print("after popen")
-        i = 1
-        while i < 6:
-            print("in while")
-            streamtemp = stream.read()
-            print(streamtemp)
-            print("breaking")
-            break
-    if temp["type"] == "cmd":
-        stream = os.popen(
-            "cd C:\\Users\\jurko\Desktop\\remote-av-Player && " + temp["cmd"])
-        stream.read()
+            "cd C:\\Users\\jurko\Desktop\\remote-av-Player\\autorun && py test.py")
+        temp = json.loads(stream.read())
+        print(temp)
+        x = threading.Thread(target=tkdestroy, args=(), daemon=True)
+        x.start()
+        if temp["type"] == "chrome":
+            stream = os.popen(
+                "cd C:\\Users\\jurko\Desktop\\remote-av-Player && py test.py")
+            i = 1
+            while i == 1:
+                streamtemp = stream.read()
+                print(streamtemp)
+                i = 2
+        if temp["type"] == "cmd":
+            stream = os.popen(
+                "cd C:\\Users\\jurko\Desktop\\remote-av-Player && " + temp["cmd"])
+            stream.read()
 
 
-print("before while")
+ping()
+
 
 x = threading.Thread(target=wsrun)
 
