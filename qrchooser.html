@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Player pairing</title>
+</head>
+
+<body>
+    <video id="qrvideo"></video>
+    <div id="buutons">
+        <button id="ws_reconnect" type="button" onclick="ws_reconnect()">reconnect</button>
+        <button id="ws_chrome" type="button" onclick="ws_chrome()">chrome</button>
+        cmd<input id="cmd" type="text">
+        <button id="ws_cmd" type="button" onclick="ws_cmd()">cmd</button>
+        <button id="ws_send" type="button" onclick="ws_send()">send</button>
+        <button id="ws_send" type="button" onclick="qr_scan()">qr scan</button>
+    </div>
+    <script>
+        document.getElementById("cmd").value = "open_pptx.bat"
+        document.getElementById("ws_send").disabled = true
+        document.getElementById("ws_chrome").disabled = true
+        document.getElementById("ws_cmd").disabled = true
+        document.getElementById("ws_reconnect").disabled = true
+        var ws_send_type
+        var qrdata
+        var socket
+    </script>
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            qrdata = JSON.parse(decodeURIComponent(window.location.hash.split("#")[1]))
+            ws_connect(window.location.hostname)
+        });
+        function ws_chrome() {
+            document.getElementById("ws_cmd").disabled = true
+            document.getElementById("ws_chrome").disabled = true
+            document.getElementById("ws_send").disabled = false
+            ws_send_type = "chrome"
+        }
+        function ws_cmd() {
+            document.getElementById("ws_cmd").disabled = true
+            document.getElementById("ws_chrome").disabled = true
+            document.getElementById("ws_send").disabled = false
+            ws_send_type = "cmd"
+        }
+        function ws_reconnect() {
+            document.getElementById("ws_reconnect").disabled = true
+            ws_connect(window.location.hostname)
+        }
+        function qr_scan() {
+            window.location.href = "https://jurko-web-host.web.app"
+        }
+        function ws_send() {
+            ws_temp = {"command": "autorun_continue_response", "type": ws_send_type }
+            if (ws_send_type == "cmd") {
+                ws_temp.cmd = document.getElementById("cmd").value
+            }
+            socket.send(JSON.stringify(ws_temp));
+            document.getElementById("ws_send").disabled = true
+            if (ws_send_type == "chrome") {
+                window.location.href = "http://" + qrdata.ip + ":" + qrdata.port + "/controller.html" + window.location.hash
+            }
+        }
+        function ws_connect(ip) {
+            socket = new WebSocket("ws://" + ip + ":8765");
+
+            // Connection opened
+            socket.addEventListener('open', function (event) {
+                socket.send(JSON.stringify({ "command": "autorun_pair" }));
+            });
+
+            // Connection closed
+            socket.addEventListener('close', function (event) {
+                document.getElementById("ws_send").disabled = true
+                document.getElementById("ws_chrome").disabled = true
+                document.getElementById("ws_cmd").disabled = true
+                document.getElementById("ws_reconnect").disabled = false
+            });
+
+            // Listen for messages
+            socket.addEventListener('message', function (event) {
+                var message_json = JSON.parse(event.data);
+                if (message_json.command == "autorun_continue") {
+                    document.getElementById("ws_chrome").disabled = false
+                    document.getElementById("ws_cmd").disabled = false
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

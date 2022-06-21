@@ -2,3 +2,5 @@ __pycache__/*
 venv/*
 remote audio player.code-workspace
 remote-av-Player.code-workspace
+firebase emulator.bat.lnk
+autorun\qrtemp.png

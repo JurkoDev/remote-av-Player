@@ -5,7 +5,7 @@
 ws<input id="ws" type="url">
 <button type="button" onclick="ws_connect()">connect</button>
 
-<button type="button"onclick="fullscreen()">fullscreen</button>
+<button id="fullscreen" type="button"onclick="fullscreen()">fullscreen</button>
 video
 <input id="video" width="10">
 audio
@@ -90,7 +90,6 @@ socket.addEventListener('message', function (event) {
     }
 });
 }
-ws_connect()
 function playcontent() {
     var frameaudio = document.getElementById("audioframe");
     var framevideo = document.getElementById("videoframe");
@@ -147,6 +146,10 @@ document.getElementById("videoframe").addEventListener('ended', (event) => {
     console.log("autoplaying end");
     loadcontent()
 });
+
+ws_connect()
+document.getElementById("fullscreen").click()
+
 </script>
 </body>
 </html>

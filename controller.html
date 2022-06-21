@@ -29,6 +29,7 @@ local play: <button type="button"onclick="local_play()">preview play</button>
 <button type="button"onclick="local_stop()">preview stop</button>
 <button type="button"onclick="fullscreen()">fullscreen</button>
 <button type="button"onclick="reconnect()">reconnect</button>
+<button id="ws_send" type="button" onclick="qr_scan()">qr scan</button>
 </div>
 <div>
     autoplay next
@@ -52,10 +53,15 @@ var socket
 var youtube_name_enable = false
 var sync_request_off = false
 var autoload_list
-document.getElementById("ws").value = "ws://127.0.0.1:8765"
+document.getElementById("ws").value = "ws://" + window.location.hostname + ":8765"
 document.getElementById("frame").setAttribute("src","");
 document.getElementById("preview").hidden = true
 document.getElementById("autoload-warning").hidden = true
+
+function startup_commnads() {
+    ws_connect()
+}
+
 function ws_connect() {
     socket = new WebSocket(document.getElementById("ws").value);
 
@@ -107,6 +113,10 @@ function ws_connect() {
 function reconnect() {
     document.getElementById("ws_div").hidden = false
 }
+function qr_scan() {
+    socket.send(JSON.stringify({"command":"autorun_reset"}));
+    window.location.href = "https://jurko-web-host.web.app"
+}
 
 function media_stop() {
     socket.send(JSON.stringify({"command":"media_stop"}));
@@ -120,6 +130,7 @@ function media_pause() {
 function loadcontent() {
     socket.send(JSON.stringify({"command":"media_frame_load"}))
 }
+
 function play() {
     var jsonsend = {"command":"media_play","link":""}
     jsonsend["link"] = document.getElementById("url").value
@@ -289,6 +300,9 @@ async function sync_request() {
     sync_request_off = true
     socket.send(JSON.stringify({"command":"sync_request"}))
 }
+window.addEventListener('DOMContentLoaded', (event) => {
+    startup_commnads()
+});
 </script>
 </body>
 </html>
