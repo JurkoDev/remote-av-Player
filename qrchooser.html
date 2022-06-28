@@ -14,7 +14,10 @@
         <button id="ws_chrome" type="button" onclick="ws_chrome()">chrome</button>
         cmd<input id="cmd" type="text">
         <button id="ws_cmd" type="button" onclick="ws_cmd()">cmd</button>
+        zoom<input id="zoom" type="text">
+        <button id="ws_zoom" type="button" onclick="ws_zoom()">zoom</button>
         <button id="ws_send" type="button" onclick="ws_send()">send</button>
+        <button id="ws_force" type="button" onclick="ws_force()">force</button>
         <button id="ws_send" type="button" onclick="qr_scan()">qr scan</button>
     </div>
     <script>
@@ -22,6 +25,8 @@
         document.getElementById("ws_send").disabled = true
         document.getElementById("ws_chrome").disabled = true
         document.getElementById("ws_cmd").disabled = true
+        document.getElementById("ws_zoom").disabled = true
+        document.getElementById("ws_force").disabled = false
         document.getElementById("ws_reconnect").disabled = true
         var ws_send_type
         var qrdata
@@ -35,14 +40,29 @@
         function ws_chrome() {
             document.getElementById("ws_cmd").disabled = true
             document.getElementById("ws_chrome").disabled = true
+            document.getElementById("ws_zoom").disabled = true
             document.getElementById("ws_send").disabled = false
             ws_send_type = "chrome"
         }
         function ws_cmd() {
             document.getElementById("ws_cmd").disabled = true
             document.getElementById("ws_chrome").disabled = true
+            document.getElementById("ws_zoom").disabled = true
             document.getElementById("ws_send").disabled = false
             ws_send_type = "cmd"
+        }
+        function ws_zoom() {
+            document.getElementById("ws_cmd").disabled = true
+            document.getElementById("ws_chrome").disabled = true
+            document.getElementById("ws_zoom").disabled = true
+            document.getElementById("ws_send").disabled = false
+            ws_send_type = "zoom"
+        }
+        function ws_force() {
+            document.getElementById("ws_chrome").disabled = false
+            document.getElementById("ws_cmd").disabled = false
+            document.getElementById("ws_zoom").disabled = false
+            document.getElementById("ws_send").disabled = true
         }
         function ws_reconnect() {
             document.getElementById("ws_reconnect").disabled = true
@@ -56,9 +76,15 @@
             if (ws_send_type == "cmd") {
                 ws_temp.cmd = document.getElementById("cmd").value
             }
+            if (ws_send_type == "zoom") {
+                ws_temp.zoom_link = document.getElementById("zoom").value
+            }
             socket.send(JSON.stringify(ws_temp));
             document.getElementById("ws_send").disabled = true
             if (ws_send_type == "chrome") {
+                window.location.href = "http://" + qrdata.ip + ":" + qrdata.port + "/controller.html" + window.location.hash
+            }
+            if (ws_send_type == "zoom") {
                 window.location.href = "http://" + qrdata.ip + ":" + qrdata.port + "/controller.html" + window.location.hash
             }
         }
@@ -75,6 +101,8 @@
                 document.getElementById("ws_send").disabled = true
                 document.getElementById("ws_chrome").disabled = true
                 document.getElementById("ws_cmd").disabled = true
+                document.getElementById("ws_zoom").disabled = true
+                document.getElementById("ws_force").disabled = false
                 document.getElementById("ws_reconnect").disabled = false
             });
 
@@ -84,6 +112,8 @@
                 if (message_json.command == "autorun_continue") {
                     document.getElementById("ws_chrome").disabled = false
                     document.getElementById("ws_cmd").disabled = false
+                    document.getElementById("ws_zoom").disabled = false
+                    document.getElementById("ws_force").disabled = true
                 }
             });
         }

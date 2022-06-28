@@ -75,6 +75,14 @@ def wsrun():
                 streamtemp = stream.read()
                 print(streamtemp)
                 i = 2
+        if temp["type"] == "zoom":
+            stream = os.popen(
+                "cd C:\\Users\\jurko\Desktop\\remote-av-Player && py test.py")
+            i = 1
+            while i == 1:
+                streamtemp = stream.read()
+                print(streamtemp)
+                i = 2
         if temp["type"] == "cmd":
             stream = os.popen(
                 "cd C:\\Users\\jurko\Desktop\\remote-av-Player && " + temp["cmd"])

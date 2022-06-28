@@ -28,6 +28,9 @@ async def youtube_dl_run(temp):
         link = temp["link"]
         stream = os.popen("youtube-dl -f 136 -g " + link + "--no-call-home")
         streamtemp = stream.read()
+        if streamtemp == "ERROR: requested format not available":
+            stream = os.popen("youtube-dl -f 135 -g " + link + "--no-call-home")
+            streamtemp = stream.read()
         jsontemp = json.loads('{"command":"media_play_youtube_video","link":""}')
         jsontemp["link"] = streamtemp
         websockets.broadcast(CLIENTS, json.dumps(jsontemp))

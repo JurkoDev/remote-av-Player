@@ -14,8 +14,7 @@ import socket
 import json
 
 
-def paired():
-    url = 'http://127.0.0.1:5000/player.html'
+def paired(url):
     # Windows
     chrome_path = 'C:/Program Files/Google/Chrome/Application/chrome.exe %s'
     # Linux
@@ -38,7 +37,11 @@ async def echo(websocket):
                     "cd C:\\Users\\jurko\Desktop\\remote-av-Player && " + temp["cmd"])
                 stream.read()
             if temp["type"] == "chrome":
-                paired()
+                paired("http://127.0.0.1:5000/player.html")
+                exit()
+            if temp["type"] == "zoom":
+                paired(temp["zoom_link"])
+                paired("http://127.0.0.1:5000/player.html")
                 exit()
 
 
