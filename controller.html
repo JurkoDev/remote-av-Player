@@ -1,6 +1,62 @@
 <!DOCTYPE html>
 <html>
 
+<head>
+    <style>
+        .dialog {
+            display: none;
+            position: fixed;
+            padding-top: 100px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .dialog-content {
+            position: relative;
+            background-color: #fefefe;
+            margin: auto;
+
+            border: 1px solid #888;
+            width: 80%;
+
+            width: 80%;
+            top: 50%;
+            transform: translate(0%, -250%);
+
+            animation-name: animatetop;
+            animation-duration: 0.4s
+        }
+
+        .close {
+            color: black;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            cursor: pointer;
+        }
+
+        @keyframes animatetop {
+            from {
+                top: -300px;
+                opacity: 0
+            }
+
+            to {
+                top: 0;
+                opacity: 1
+            }
+        }
+    </style>
+</head>
+
 <body>
 
     <div id="ws_div">
@@ -16,6 +72,7 @@
         <button type="button" onclick="youtube_video_play()">youtube play</button>
         <button type="button" onclick="youtube_video_offline()">youtube offline convert</button>
         <button type="button" onclick="input_clear()">clear</button>
+        subs<input id="subs" type="url">
     </div>
     <div id="autoload-warning">
         <p style="color:red;font-size:30px;">60 Seconds To End Load</p>
@@ -28,6 +85,10 @@
         <button type="button" onclick="media_play()">media play</button>
         <button type="button" onclick="loadcontent()">load player</button>
     </div>
+    <!-- <div>
+        <button type="button" onclick="qrdialog_start()">qrcode scan</button>
+        <button type="button" onclick="qrdialog_stop()">qrcode stop</button>
+    </div> -->
     <div>
         <button type="button" onclick='vol("up")'>vol up</button>
         <button type="button" onclick='vol("down")'>vol down</button>
@@ -49,6 +110,8 @@
         Alert if autoload is off
         <input type="checkbox" id="autoload_toggle_off_alert">
     </div>
+    <button id="show_advanced_controls_button" type="button" onclick="show_advanced_controls()">show advanced
+        controls</button>
     <button id="show_advanced_button" type="button" onclick="show_advanced()">show advanced</button>
     <div id="prewiew_buttons">
         local play: <button type="button" onclick="local_play()">preview play</button>
@@ -61,16 +124,36 @@
         <button id="ws_send" type="button" onclick="qr_scan()">qr scan</button>
     </div>
 
+
+    <!-- <div id="scanner">
+        <iframe id="qrScanner" allow="autoplay; Camera" width=1280 height=720
+            src="https://jurko-web-host.web.app/qrscanner.html"></iframe>
+    </div> -->
     <div id="preview">
         <iframe id="frame" allow="autoplay; fullscreen" width=1280 height=720 src="" crossorigin="anonymous"></iframe>
+    </div>
+
+    <div id="mydialog" class="dialog">
+
+        <!-- dialog content -->
+        <div class="dialog-content">
+            <div class="dialog-header">
+                <p>Qrcode scanned</p>
+            </div>
+            <div class="dialog-body"></div>
+            <div class="dialog-footer">
+                <button type="button" style="font-size: 28px;font-weight: bold;" onclick="qrdialogsave()">save</button>
+            </div>
+        </div>
+
     </div>
 
     <script>
 
         var queue = {
-            "lists": ["temp", "my_likes"], "list_input_vals": [{ "list": "temp", "list_input_index": "0", "list_input_index_play": "0" }, { "list": "my_likes", "list_input_index": "81", "list_input_index_play": "0" }],
+            "lists": ["temp", "my_likes"], "list_input_vals": [{ "list": "temp", "list_input_index": "0", "list_input_index_play": "0" }, { "list": "my_likes", "list_input_index": "0", "list_input_index_play": "0" }],
             "temp": [{ "link": "https://youtu.be/9w5OAUuGu8w", "label": "Brass" }, { "link": "https://youtu.be/_2Vc_k8Tqgg", "label": "Oracle" }, { "link": "https://youtu.be/rcSK4Ep4Um4", "label": "Slemyatsya pacany" }, { "link": "https://youtu.be/NLSq2PV2WNg", "label": "Head & Heart (feat. MNEK)" }],
-            "my_likes": [{ "link": "https://youtu.be/crz9Wo8VaaA", "label": "Raptures & DigEx - Feel [NCS Release]" }, { "link": "https://youtu.be/z4RfRxxz5lw", "label": "Tetrix Bass & ROY KNOX - When I'm Gone (feat. Ellen Louise) [NCS Release]" }, { "link": "https://youtu.be/DJZYlFi68PA", "label": "borne & Arya - One More Try (feat. imallryt) [NCS Release]" }, { "link": "https://youtu.be/zDNmvvlUcOU", "label": "Raptures & SOXX - Signs (feat. Barmuda) [NCS Release]" }, { "link": "https://youtu.be/4KQwiUTQgCM", "label": "Zack Merci - BOUNCE! (feat. Nieko) [NCS Release]" }, { "link": "https://youtu.be/rmaw3NRVHjM", "label": "Dj Mangoo-Inside You (Full)" }, { "link": "https://youtu.be/GmoIqDxTXWU", "label": "DJ Mangoo Inside you 1,2,3" }, { "link": "https://youtu.be/BwfJsKfCnaM", "label": "SABATON - The Last Battle (Official Lyric Video)" }, { "link": "https://youtu.be/1SQUOTTk6X8", "label": "Patent Pending - Six Feet" }, { "link": "https://youtu.be/9KZ7YwRFYqA", "label": "Happy Face" }, { "link": "https://youtu.be/qP-7GNoDJ5c", "label": "Nathan Evans - Wellerman (Sea Shanty)" }, { "link": "https://youtu.be/vClUAN9qfX0", "label": "World's Smallest Violin but it's timed right (Beat Saber)" }, { "link": "https://youtu.be/UbQgXeY_zi4", "label": "Caravan Palace - Lone Digger" }, { "link": "https://youtu.be/lYEi_WdCTDI", "label": "EGO & ROBERT BURIAN — Žijeme len raz // Official video" }, { "link": "https://youtu.be/rOF2U3uffzw", "label": "Beneath the Black Flag" }, { "link": "https://youtu.be/oIsyEFxfbeI", "label": "Beneath the Black Flag" }, { "link": "https://youtu.be/ibMlwZdQyoM", "label": "Enemy (from the series Arcane League of Legends)" }, { "link": "https://youtu.be/hNb_wgU9nWQ", "label": "Brittle Bones Nicky" }, { "link": "https://youtu.be/KQ6zr6kCPj8", "label": "LMFAO ft. Lauren Bennett, GoonRock - Party Rock Anthem (Official Video)" }, { "link": "https://youtu.be/Xk4xcSl8S_8", "label": "Opening" }, { "link": "https://youtu.be/IwgVcfJbZXo", "label": "Anything you can do, Chief can do better." }, { "link": "https://youtu.be/PEnJbjBuxnw", "label": "AJR - World's Smallest Violin (Official Video)" }, { "link": "https://youtu.be/XJ7vSFXLo5Y", "label": "I've been sleeping in a cardboard box" }, { "link": "https://youtu.be/wDuoOapZ9Z0", "label": "Levels (Original Version)" }, { "link": "https://youtu.be/W4C-NEWrnSQ", "label": "The Nights" }, { "link": "https://youtu.be/Q_mQxKviRJM", "label": "Good Feeling" }, { "link": "https://youtu.be/2NiyrtYegso", "label": "Wake Me Up" }, { "link": "https://youtu.be/dJqxQzxLbHM", "label": "Happy (From \"Despicable Me 2\")" }, { "link": "https://youtu.be/WroIBvPu5tw", "label": "Cajama - You Did Me Wrong [NCS Release]" }, { "link": "https://youtu.be/oT3mCybbhf0", "label": "AVICII & RICK ASTLEY - Never Gonna Wake You Up (NilsOfficial Mashup)" }, { "link": "https://youtu.be/PbEGWtcUnK0", "label": "NIVIRO - Demons [NCS Release]" }, { "link": "https://youtu.be/rWVjht-MIto", "label": "Spektrem - Shine (Gabriel Drew & Bloom Remix) [NCS Release]" }, { "link": "https://youtu.be/jK2aIUmmdP4", "label": "Different Heaven & EH!DE - My Heart [NCS Release]" }, { "link": "https://youtu.be/iHA1utIzpws", "label": "Tobu - If I Disappear (ft. Tom Mrtensson) [NCS Release]" }, { "link": "https://youtu.be/SOEkdtS8rUg", "label": "Tisoki & Cajama - Feelings [NCS Release]" }, { "link": "https://youtu.be/43BV6Us-Deo", "label": "Sea Shanty" }, { "link": "https://youtu.be/Vg0zSGVNjfo", "label": "Ace of Base - All for You (Official Music Video)" }, { "link": "https://youtu.be/_cW5R6OOPhE", "label": "Bananza (Belly Dancer)" }, { "link": "https://youtu.be/U62-LBQPZUI", "label": "Belly Dancer" }, { "link": "https://youtu.be/7GiDgP4F1j8", "label": "Nightcore - Around The World" }, { "link": "https://youtu.be/cXWGpsszhpE", "label": "LITTLE BIG - RAVE ON (prod. DENDERTY)" }, { "link": "https://youtu.be/720F5qD9tUQ", "label": "Scarlet Fire" }, { "link": "https://youtu.be/p6NstB7qdn4", "label": "Get Out" }, { "link": "https://youtu.be/xJmb45IGhZU", "label": "Ultra Music Festival 2022 - New Club Music Mix 2022" }, { "link": "https://youtu.be/GHiovIidNas", "label": "Foster the People - Don't Stop (The Fat Rat Remix)" }, { "link": "https://youtu.be/JA2TPK0NeFI", "label": "Stamp On The Ground" }, { "link": "https://youtu.be/EUaWNQ1KH3o", "label": "Drunken Sailor 2k18 (Pirate Song) (Melbourne Bounce Mix)" }, { "link": "https://youtu.be/NLSq2PV2WNg", "label": "Head & Heart (feat. MNEK)" }, { "link": "https://youtu.be/2kzRDMf8JbI", "label": "Party Till We Die (feat. Andrew W.K.)" }, { "link": "https://youtu.be/UwTt2Ox_0AE", "label": "Caramelldansen (Speedy Mixes)" }, { "link": "https://youtu.be/5FwPpFs60V8", "label": "Caramelldansen 2018" }, { "link": "https://youtu.be/oFkHsa80t9w", "label": "A Lot Of Money" }, { "link": "https://youtu.be/9w5OAUuGu8w", "label": "Brass" }, { "link": "https://youtu.be/_2Vc_k8Tqgg", "label": "Oracle" }, { "link": "https://youtu.be/d4EcpA78Fcg", "label": "Big Dick" }, { "link": "https://youtu.be/rcSK4Ep4Um4", "label": "Slemyatsya pacany" }, { "link": "https://youtu.be/1airplq2v2s", "label": "Greedy (feat. Swiblet)" }, { "link": "https://youtu.be/225qTJRs9gE", "label": "When Can I See You Again? (From \"Wreck-It Ralph\"/Soundtrack Version)" }, { "link": "https://youtu.be/Tcb0ipQF5pU", "label": "Takai - Rhythm Thief (Looting The Lourve) remix" }, { "link": "https://youtu.be/vuJ2V-9GhBo", "label": "Tremor (Sensation 2014 Anthem)" }, { "link": "https://youtu.be/-5pN-p8qRoM", "label": "3 2 1 DROP IT" }, { "link": "https://youtu.be/LN0SWHTbgGM", "label": "Cico band feat. Rendy - Kelovacky" }, { "link": "https://youtu.be/zKLFoTrsS2I", "label": "Cico band feat. Rendy - Party ( official video )" }, { "link": "https://youtu.be/RGSMixtN_7k", "label": "Ona ľubi pomaranče" }, { "link": "https://youtu.be/FyZWr2wm8B0", "label": "Die Young" }, { "link": "https://youtu.be/WUu0YvPX69E", "label": "Right Round (feat. Ke$ha)" }, { "link": "https://youtu.be/dfk6i41GCNo", "label": "Centuries" }, { "link": "https://youtu.be/NLSq2PV2WNg", "label": "Head & Heart (feat. MNEK)" }, { "link": "https://youtu.be/naY7omm4-iI", "label": "Perfect Strangers" }, { "link": "https://youtu.be/rWy1w7WXeq0", "label": "Chocolate (A Choco Choco) lyrics" }, { "link": "https://youtu.be/ST44PvR5xR4", "label": "Sweet Dreams (Are Made of This) (From \"Paris is Burning\")" }, { "link": "https://youtu.be/9J85VEM45sw", "label": "Dschinghis Khan - Moskau (NIVIRO Hardstyle Remix)" }, { "link": "https://youtu.be/Nge5fpC_5iU", "label": "Moskau (Long Version)" }, { "link": "https://youtu.be/uYN0VbbQTP8", "label": "Mr. Saxobeat (Radio Edit)" }, { "link": "https://youtu.be/Y7n5JX0zxSw", "label": "Gentleman" }, { "link": "https://youtu.be/enOtfOGqm-0", "label": "Everytime We Touch (Radio Edit)" }, { "link": "https://youtu.be/gPZjxwEFCZw", "label": "Ready For Love" }, { "link": "https://youtu.be/DtVWuWWJ_cM", "label": "A Neverending Dream" }, { "link": "https://youtu.be/EDt3rQxb_mU", "label": "Bad Boy" }, { "link": "https://youtu.be/Qge8Jk5oXmw", "label": "U-turn" }, { "link": "https://youtu.be/OPvx_3uR93U", "label": "Blah Blah Blah" }, { "link": "https://youtu.be/vd3cv_FW5Jo", "label": "Hot N Cold" }, { "link": "https://youtu.be/LszrNDvIivU", "label": "Danza Kuduro (Version MTO)" }, { "link": "https://youtu.be/pd6agz_qL4c", "label": "Decibely lásky" }, { "link": "https://youtu.be/q8XQRfTgaCE", "label": "Get Ready" }, { "link": "https://youtu.be/Aeb2oy4Qi4E", "label": "Faradenza" }, { "link": "https://youtu.be/evHIaUZ0KtQ", "label": "Sexy And I Know It" }, { "link": "https://youtu.be/c_sNBS-9Ras", "label": "Crab Rave" }, { "link": "https://youtu.be/mVw5KiGwqaQ", "label": "Rockabye (feat. Sean Paul & Anne-Marie)" }, { "link": "https://youtu.be/V_lF4cP3ifM", "label": "Heartbass (feat. Tommy Cash)" }, { "link": "https://youtu.be/Yv4P63jJEoI", "label": "Jägermeister" }, { "link": "https://youtu.be/lygg5Ju0nNU", "label": "We No Speak Americano (Original Mix)" }, { "link": "https://youtu.be/n55j6OfP25k", "label": "Firework" }, { "link": "https://youtu.be/pTLecrGrWY4", "label": "Ma Baker (ZDF Starparade 02.06.1977)" }, { "link": "https://youtu.be/hCFxVNm98Rs", "label": "Last Friday Night (T.G.I.F.)" }, { "link": "https://youtu.be/d2xrFAJMIq0", "label": "Sexy Bitch (feat. Akon)" }, { "link": "https://youtu.be/2Q0ezAeUlXg", "label": "Trombone" }, { "link": "https://youtu.be/caAWiyz4Z1Y", "label": "Tarantino (feat. STARX)" }, { "link": "https://youtu.be/DeiZes4wFnQ", "label": "With Russia from Love" }, { "link": "https://youtu.be/deopIvnjJSs", "label": "Public Enemy" },
+            "my_likes": [{ "link": "https://youtu.be/crz9Wo8VaaA", "label": "Raptures & DigEx - Feel [NCS Release]" }, { "link": "https://youtu.be/z4RfRxxz5lw", "label": "Tetrix Bass & ROY KNOX - When I'm Gone (feat. Ellen Louise) [NCS Release]" }, { "link": "https://youtu.be/DJZYlFi68PA", "label": "borne & Arya - One More Try (feat. imallryt) [NCS Release]" }, { "link": "https://youtu.be/zDNmvvlUcOU", "label": "Raptures & SOXX - Signs (feat. Barmuda) [NCS Release]" }, { "link": "https://youtu.be/4KQwiUTQgCM", "label": "Zack Merci - BOUNCE! (feat. Nieko) [NCS Release]" }, { "link": "https://youtu.be/rmaw3NRVHjM", "label": "Dj Mangoo-Inside You (Full)" }, { "link": "https://youtu.be/GmoIqDxTXWU", "label": "DJ Mangoo Inside you 1,2,3" }, { "link": "https://youtu.be/BwfJsKfCnaM", "label": "SABATON - The Last Battle (Official Lyric Video)" }, { "link": "https://youtu.be/1SQUOTTk6X8", "label": "Patent Pending - Six Feet" }, { "link": "https://youtu.be/9KZ7YwRFYqA", "label": "Happy Face" }, { "link": "https://youtu.be/qP-7GNoDJ5c", "label": "Nathan Evans - Wellerman (Sea Shanty)" }, { "link": "https://youtu.be/UbQgXeY_zi4", "label": "Caravan Palace - Lone Digger" }, { "link": "https://youtu.be/lYEi_WdCTDI", "label": "EGO & ROBERT BURIAN — Žijeme len raz // Official video" }, { "link": "https://youtu.be/rOF2U3uffzw", "label": "Beneath the Black Flag" }, { "link": "https://youtu.be/oIsyEFxfbeI", "label": "Beneath the Black Flag" }, { "link": "https://youtu.be/ibMlwZdQyoM", "label": "Enemy (from the series Arcane League of Legends)" }, { "link": "https://youtu.be/hNb_wgU9nWQ", "label": "Brittle Bones Nicky" }, { "link": "https://youtu.be/KQ6zr6kCPj8", "label": "LMFAO ft. Lauren Bennett, GoonRock - Party Rock Anthem (Official Video)" }, { "link": "https://youtu.be/Xk4xcSl8S_8", "label": "Opening" }, { "link": "https://youtu.be/IwgVcfJbZXo", "label": "Anything you can do, Chief can do better." }, { "link": "https://youtu.be/PEnJbjBuxnw", "label": "AJR - World's Smallest Violin (Official Video)" }, { "link": "https://youtu.be/XJ7vSFXLo5Y", "label": "I've been sleeping in a cardboard box" }, { "link": "https://youtu.be/wDuoOapZ9Z0", "label": "Levels (Original Version)" }, { "link": "https://youtu.be/W4C-NEWrnSQ", "label": "The Nights" }, { "link": "https://youtu.be/Q_mQxKviRJM", "label": "Good Feeling" }, { "link": "https://youtu.be/2NiyrtYegso", "label": "Wake Me Up" }, { "link": "https://youtu.be/dJqxQzxLbHM", "label": "Happy (From \"Despicable Me 2\")" }, { "link": "https://youtu.be/WroIBvPu5tw", "label": "Cajama - You Did Me Wrong [NCS Release]" }, { "link": "https://youtu.be/oT3mCybbhf0", "label": "AVICII & RICK ASTLEY - Never Gonna Wake You Up (NilsOfficial Mashup)" }, { "link": "https://youtu.be/PbEGWtcUnK0", "label": "NIVIRO - Demons [NCS Release]" }, { "link": "https://youtu.be/rWVjht-MIto", "label": "Spektrem - Shine (Gabriel Drew & Bloom Remix) [NCS Release]" }, { "link": "https://youtu.be/jK2aIUmmdP4", "label": "Different Heaven & EH!DE - My Heart [NCS Release]" }, { "link": "https://youtu.be/iHA1utIzpws", "label": "Tobu - If I Disappear (ft. Tom Mrtensson) [NCS Release]" }, { "link": "https://youtu.be/SOEkdtS8rUg", "label": "Tisoki & Cajama - Feelings [NCS Release]" }, { "link": "https://youtu.be/43BV6Us-Deo", "label": "Sea Shanty" }, { "link": "https://youtu.be/Vg0zSGVNjfo", "label": "Ace of Base - All for You (Official Music Video)" }, { "link": "https://youtu.be/_cW5R6OOPhE", "label": "Bananza (Belly Dancer)" }, { "link": "https://youtu.be/U62-LBQPZUI", "label": "Belly Dancer" }, { "link": "https://youtu.be/7GiDgP4F1j8", "label": "Nightcore - Around The World" }, { "link": "https://youtu.be/cXWGpsszhpE", "label": "LITTLE BIG - RAVE ON (prod. DENDERTY)" }, { "link": "https://youtu.be/720F5qD9tUQ", "label": "Scarlet Fire" }, { "link": "https://youtu.be/p6NstB7qdn4", "label": "Get Out" }, { "link": "https://youtu.be/xJmb45IGhZU", "label": "Ultra Music Festival 2022 - New Club Music Mix 2022" }, { "link": "https://youtu.be/GHiovIidNas", "label": "Foster the People - Don't Stop (The Fat Rat Remix)" }, { "link": "https://youtu.be/JA2TPK0NeFI", "label": "Stamp On The Ground" }, { "link": "https://youtu.be/EUaWNQ1KH3o", "label": "Drunken Sailor 2k18 (Pirate Song) (Melbourne Bounce Mix)" }, { "link": "https://youtu.be/NLSq2PV2WNg", "label": "Head & Heart (feat. MNEK)" }, { "link": "https://youtu.be/2kzRDMf8JbI", "label": "Party Till We Die (feat. Andrew W.K.)" }, { "link": "https://youtu.be/UwTt2Ox_0AE", "label": "Caramelldansen (Speedy Mixes)" }, { "link": "https://youtu.be/5FwPpFs60V8", "label": "Caramelldansen 2018" }, { "link": "https://youtu.be/oFkHsa80t9w", "label": "A Lot Of Money" }, { "link": "https://youtu.be/9w5OAUuGu8w", "label": "Brass" }, { "link": "https://youtu.be/_2Vc_k8Tqgg", "label": "Oracle" }, { "link": "https://youtu.be/d4EcpA78Fcg", "label": "Big Dick" }, { "link": "https://youtu.be/rcSK4Ep4Um4", "label": "Slemyatsya pacany" }, { "link": "https://youtu.be/1airplq2v2s", "label": "Greedy (feat. Swiblet)" }, { "link": "https://youtu.be/225qTJRs9gE", "label": "When Can I See You Again? (From \"Wreck-It Ralph\"/Soundtrack Version)" }, { "link": "https://youtu.be/Tcb0ipQF5pU", "label": "Takai - Rhythm Thief (Looting The Lourve) remix" }, { "link": "https://youtu.be/vuJ2V-9GhBo", "label": "Tremor (Sensation 2014 Anthem)" }, { "link": "https://youtu.be/-5pN-p8qRoM", "label": "3 2 1 DROP IT" }, { "link": "https://youtu.be/LN0SWHTbgGM", "label": "Cico band feat. Rendy - Kelovacky" }, { "link": "https://youtu.be/zKLFoTrsS2I", "label": "Cico band feat. Rendy - Party ( official video )" }, { "link": "https://youtu.be/RGSMixtN_7k", "label": "Ona ľubi pomaranče" }, { "link": "https://youtu.be/FyZWr2wm8B0", "label": "Die Young" }, { "link": "https://youtu.be/WUu0YvPX69E", "label": "Right Round (feat. Ke$ha)" }, { "link": "https://youtu.be/dfk6i41GCNo", "label": "Centuries" }, { "link": "https://youtu.be/NLSq2PV2WNg", "label": "Head & Heart (feat. MNEK)" }, { "link": "https://youtu.be/naY7omm4-iI", "label": "Perfect Strangers" }, { "link": "https://youtu.be/rWy1w7WXeq0", "label": "Chocolate (A Choco Choco) lyrics" }, { "link": "https://youtu.be/ST44PvR5xR4", "label": "Sweet Dreams (Are Made of This) (From \"Paris is Burning\")" }, { "link": "https://youtu.be/9J85VEM45sw", "label": "Dschinghis Khan - Moskau (NIVIRO Hardstyle Remix)" }, { "link": "https://youtu.be/Nge5fpC_5iU", "label": "Moskau (Long Version)" }, { "link": "https://youtu.be/uYN0VbbQTP8", "label": "Mr. Saxobeat (Radio Edit)" }, { "link": "https://youtu.be/Y7n5JX0zxSw", "label": "Gentleman" }, { "link": "https://youtu.be/enOtfOGqm-0", "label": "Everytime We Touch (Radio Edit)" }, { "link": "https://youtu.be/gPZjxwEFCZw", "label": "Ready For Love" }, { "link": "https://youtu.be/DtVWuWWJ_cM", "label": "A Neverending Dream" }, { "link": "https://youtu.be/EDt3rQxb_mU", "label": "Bad Boy" }, { "link": "https://youtu.be/Qge8Jk5oXmw", "label": "U-turn" }, { "link": "https://youtu.be/OPvx_3uR93U", "label": "Blah Blah Blah" }, { "link": "https://youtu.be/vd3cv_FW5Jo", "label": "Hot N Cold" }, { "link": "https://youtu.be/LszrNDvIivU", "label": "Danza Kuduro (Version MTO)" }, { "link": "https://youtu.be/pd6agz_qL4c", "label": "Decibely lásky" }, { "link": "https://youtu.be/q8XQRfTgaCE", "label": "Get Ready" }, { "link": "https://youtu.be/Aeb2oy4Qi4E", "label": "Faradenza" }, { "link": "https://youtu.be/evHIaUZ0KtQ", "label": "Sexy And I Know It" }, { "link": "https://youtu.be/c_sNBS-9Ras", "label": "Crab Rave" }, { "link": "https://youtu.be/mVw5KiGwqaQ", "label": "Rockabye (feat. Sean Paul & Anne-Marie)" }, { "link": "https://youtu.be/V_lF4cP3ifM", "label": "Heartbass (feat. Tommy Cash)" }, { "link": "https://youtu.be/Yv4P63jJEoI", "label": "Jägermeister" }, { "link": "https://youtu.be/lygg5Ju0nNU", "label": "We No Speak Americano (Original Mix)" }, { "link": "https://youtu.be/n55j6OfP25k", "label": "Firework" }, { "link": "https://youtu.be/pTLecrGrWY4", "label": "Ma Baker (ZDF Starparade 02.06.1977)" }, { "link": "https://youtu.be/hCFxVNm98Rs", "label": "Last Friday Night (T.G.I.F.)" }, { "link": "https://youtu.be/d2xrFAJMIq0", "label": "Sexy Bitch (feat. Akon)" }, { "link": "https://youtu.be/2Q0ezAeUlXg", "label": "Trombone" }, { "link": "https://youtu.be/caAWiyz4Z1Y", "label": "Tarantino (feat. STARX)" }, { "link": "https://youtu.be/DeiZes4wFnQ", "label": "With Russia from Love" }, { "link": "https://youtu.be/deopIvnjJSs", "label": "Public Enemy" },
             { "link": "https://youtu.be/ILc46etFjcc", "label": "Polyushko Polye (feat. Killaheadz)" }, { "link": "https://youtu.be/rcSK4Ep4Um4", "label": "Slemyatsya pacany" }, { "link": "https://youtu.be/pS5d77DQHOI", "label": "Tokyo Drift (Fast & Furious)" }, { "link": "https://youtu.be/trqszNocEhI", "label": "Take On Me (Symphonic Version)" }, { "link": "https://youtu.be/jtsHy6KMtsA", "label": "Take on Me (2015 Remaster)" }, { "link": "https://youtu.be/fTFxE32onKs", "label": "GAS GAS GAS" }, { "link": "https://youtu.be/iR1sAex__VA", "label": "Waiting For Love" }, { "link": "https://youtu.be/kQ4-R5kBkp0", "label": "Mamma Mia" }, { "link": "https://youtu.be/Ah0srVZq9ac", "label": "I Took A Pill In Ibiza (Seeb Remix)" }, { "link": "https://youtu.be/Xugs-grBc0g", "label": "All Bets Are Off" }, { "link": "https://youtu.be/MBfdsAt1zME", "label": "Chihuahua (Radio Version)" }, { "link": "https://youtu.be/gYuT13E9JX8", "label": "Turn It Up (feat. Tommy Cash)" }, { "link": "https://youtu.be/YJ9l4hHQVrA", "label": "She Wants Me Dead" }, { "link": "https://youtu.be/QrnNEQAOLKw", "label": "FILV - BALENCIAGA (Y3MR$ Remix) Lyrics🎵" }, { "link": "https://youtu.be/hqDShBBrJ5A", "label": "Zijeme len raz" }, { "link": "https://youtu.be/64oYM_ZVoT8", "label": "Arriba (feat. Clean Bandit)" }, { "link": "https://youtu.be/pSVbF6DGH9U", "label": "Around the World (La La La La La) (Radio Version)" }, { "link": "https://youtu.be/r6FVk2k4qsM", "label": "2 UNLIMITED - No Limit (Rap Version) (Official Music Video)" }, { "link": "https://youtu.be/gne9jY-EDm4", "label": "No Limit" }, { "link": "https://youtu.be/iCV7IoVGYgo", "label": "The King" }, { "link": "https://youtu.be/82y4XIYue0c", "label": "[I Want To] Be Someone" }, { "link": "https://youtu.be/rlQ0NdDsaw8", "label": "DADDY (feat. CL of 2NE1)" }, { "link": "https://youtu.be/ozcKdmjFE1I", "label": "Rave in the Grave" }, { "link": "https://youtu.be/1f053VrnFZk", "label": "Little Swing" }, { "link": "https://youtu.be/YuuxEgx-dVE", "label": "TheFatRat - Monody (A Live Performance)" }, { "link": "https://youtu.be/Los42buIecE", "label": "OMFG - Everybody" }, { "link": "https://youtu.be/A5wBk9946Ew", "label": "Astronomia" }, { "link": "https://youtu.be/aaIjs8K3oYo", "label": "Hello" }, { "link": "https://youtu.be/W4C-NEWrnSQ", "label": "The Nights" }, { "link": "https://youtu.be/pn-1EEvYc6k", "label": "Stronzo" }, { "link": "https://youtu.be/AilByibCKWc", "label": "Life in da Trash" }, { "link": "https://youtu.be/qRHM9uMRgsM", "label": "Hateful Love (feat. Danny Zuckerman)" }, { "link": "https://youtu.be/swweNLvmSf8", "label": "Barbie Girl" }, { "link": "https://youtu.be/uC6Z_HtSd-A", "label": "The Sign" }, { "link": "https://youtu.be/K7SEc_dFQZY", "label": "AMONG US" }, { "link": "https://youtu.be/9usU9GvqovQ", "label": "Love Is Dead" }, { "link": "https://youtu.be/e1c0s82UHfA", "label": "To Party (feat. DenDerty, Danny Zuckerman)" }, { "link": "https://youtu.be/7cPhKwRF4oY", "label": "Salvatore Ganacci - Heartbass (feat. Tommy Cash) [Official Audio]" }, { "link": "https://youtu.be/dCErEM6h-k0", "label": "Spoiler Alert - S3RL feat DEFI BRILATOR" }, { "link": "https://youtu.be/NkRkuI0ZgX0", "label": "Salvatore Ganacci - Horse (Official Music Video)" }, { "link": "https://youtu.be/O6insUApfwU", "label": "HBKN - Summer Never Dies - Russian Happy Hardcore" }, { "link": "https://youtu.be/-QHha1zko1A", "label": "LITTLE BIG - AK-47 (music video)" }, { "link": "https://youtu.be/5usk6azyvYI", "label": "Liar" }, { "link": "https://youtu.be/qAPZoXecOzY", "label": "PYRO (Extended Mix)" }, { "link": "https://youtu.be/Y9i2rPVSEok", "label": "Freaks (Radio Edit)" }, { "link": "https://youtu.be/wNDNeGgY8TU", "label": "Mamma Maria (Piccolo Grandi per СIAO 2020)" }, { "link": "https://youtu.be/fLqOvpK72FM", "label": "Pavol Hammel - ZRPŠ" }, { "link": "https://youtu.be/VrtjHK8c6Ec", "label": "Supreme" }, { "link": "https://youtu.be/Ypw7cVsnQxU", "label": "Roses (Imanbek Remix)" }, { "link": "https://youtu.be/KQ8pG-d40aA", "label": "Daft Punk - Harder, Better, Faster, Stronger (Far Out Remix)" }, { "link": "https://youtu.be/c8df7fD-Ox8", "label": "AMONG US Theme Song (Magentium EDM Remix)" }, { "link": "https://youtu.be/dslO-3GgenY", "label": "SABATON - No Bullets Fly (Animated Story Video)" }, { "link": "https://youtu.be/ejyA22n-_mc", "label": "Lojzo - Pridružená výroba" }, { "link": "https://youtu.be/iNi68-YdXTE", "label": "Among Us (Trap Edition)" }, { "link": "https://youtu.be/kPeMSkAUkA0", "label": "Mario Theme Song (PedroDJDaddy Trap 2020 Remix)" }, { "link": "https://youtu.be/9JQU_3Mx6xY", "label": "It's the Most Wonderful Time of the Year" }, { "link": "https://youtu.be/Eht9W25tDZo", "label": "Scatman" }, { "link": "https://youtu.be/7neipvZ_H0c", "label": "Scatman's World" }, { "link": "https://youtu.be/bPjHDXLGG4U", "label": "I`m OK" }, { "link": "https://youtu.be/BJ0xBCwkg3E", "label": "Running in the 90's" }, { "link": "https://youtu.be/F22DCvJ24Eg", "label": "Marble Machine - Band Version LIVE" }, { "link": "https://youtu.be/8a0thYvYCNE", "label": "The Last Stand" }, { "link": "https://youtu.be/3MRSLSQdelI", "label": "The Attack of the Dead Men" }, { "link": "https://youtu.be/VWQ-e0qXX0M", "label": "In My Mind" }, { "link": "https://youtu.be/33sBoClL16o", "label": "We No Speak Americano" }, { "link": "https://youtu.be/68ugkg9RePc", "label": "Eiffel 65 - Blue (Da Ba Dee) [Gabry Ponte Ice Pop Mix] (Original Video with subtitles)" }, { "link": "https://youtu.be/B63qlootuG0", "label": "Shiroyama" }, { "link": "https://youtu.be/62floj37NhM", "label": "Kristina - Jablcko" }, { "link": "https://youtu.be/roEMP474x_Q", "label": "Jožin z bažin" }, { "link": "https://youtu.be/i9BupglHdtM", "label": "SABATON - The Last Stand (Official Music Video)" }, { "link": "https://youtu.be/ReBDW-4mtyo", "label": "David Bulla - Unexpected [NCS Release]" }, { "link": "https://youtu.be/mfJhMfOPWdE", "label": "Armin van Buuren - Blah Blah Blah (Official Lyric Video)" }, { "link": "https://youtu.be/btrzs54s1Rc", "label": "Jonas Blue - Rise ft. Jack & Jack (Official Video)" }, { "link": "https://youtu.be/OFWT4yfPdjo", "label": "Desmeon - Back From The Dead [NCS Release]" }, { "link": "https://youtu.be/cNcy3J4x62M", "label": "Elektronomia - Limitless [NCS Release]" }, { "link": "https://youtu.be/TW9d8vYrVFQ", "label": "Elektronomia - Sky High [NCS Release]" }, { "link": "https://youtu.be/fzNMd3Tu1Zw", "label": "Elektronomia - Energy [NCS Release]" }, { "link": "https://youtu.be/ZQTd8_838Oc", "label": "UNO" }, { "link": "https://youtu.be/Jxbu80okI_U", "label": "LITTLE BIG - ROCK–PAPER–SCISSORS (Official Music Video)" }, { "link": "https://youtu.be/ADlGkXAz1D0", "label": "LITTLE BIG - GO BANANAS (Official Music Video)" }, { "link": "https://youtu.be/SsFI40bXROs", "label": "LITTLE BIG — I'M OK (official music video)" }, { "link": "https://youtu.be/RhMYBfF7-hE", "label": "LITTLE BIG - HYPNODANCER (Official Music Video)" }, { "link": "https://youtu.be/SQHdFAm7g7E", "label": "Controlling a MASSIVE pipe organ with my computer" }, { "link": "https://youtu.be/ng3XUABcwDw", "label": "Riton, Oliver Heldens - Turn Me On (Lyric Video) ft. Vula" }, { "link": "https://youtu.be/ULTtWUZhD9c", "label": "Robbie Williams - Supreme" }, { "link": "https://youtu.be/_ovdm2yX4MA", "label": "Avicii - Levels" }, { "link": "https://youtu.be/dwtHuPlSZ3Y", "label": "North Korea propaganda music" }, { "link": "https://youtu.be/_iBPt1aoA7E", "label": "Juditha Triumphans" }, { "link": "https://youtu.be/YTIDHSRA9xk", "label": "Glory to Our Tsar chorus from the Russian opera Ivan Susanin by Mikhail Glinka - HQ audio" }, { "link": "https://youtu.be/cE0wfjsybIQ", "label": "Noisestorm - Crab Rave (Official Music Video)" }, { "link": "https://youtu.be/msSc7Mv0QHY", "label": "J.Geco - Chicken Song" }, { "link": "https://youtu.be/mxzgwJ8tSE0", "label": "Wang Rong Rollin - Chick Chick (王蓉 - 小雞小雞) MV" }, { "link": "https://youtu.be/fKopy74weus", "label": "Imagine Dragons - Thunder" }, { "link": "https://youtu.be/wnJ6LuUFpMo", "label": "J Balvin, Willy William - Mi Gente (Official Video)" }, { "link": "https://youtu.be/cdNgo-E95f0", "label": "Riton x Oliver Heldens - Turn Me On ft. Vula" }, { "link": "https://youtu.be/wyx6JDQCslE", "label": "LMFAO - Sexy and I Know It (Official Video)" }, { "link": "https://youtu.be/Bznxx12Ptl0", "label": "AronChupa, Little Sis Nora - I'm an Albatraoz | OFFICIAL VIDEO" }, { "link": "https://youtu.be/t4H_Zoh7G5A", "label": "Jennifer Lopez - On The Floor ft. Pitbull" }, { "link": "https://youtu.be/y6Sxv-sUYtM", "label": "Pharrell Williams - Happy (Official Music Video)" }, { "link": "https://youtu.be/HAFVJAKpzFk", "label": "GLP Prolight+Sound 2017 Show" }, { "link": "https://youtu.be/1t_sMynan_k", "label": "LITTLE BIG – FARADENZA (official music video)" }, { "link": "https://youtu.be/5ArkY_x-bI4", "label": "Sikdope - Follow (Lyric Video)" }]
         }
         // var queue = {"lists":["temp","my_likes"],"list_input_vals":[{list:"temp",list_input_index:"0",list_input_index_play:"0"},{list:"my_likes",list_input_index:"0",list_input_index_play:"0"}],"temp":[{"link":"https://youtu.be/9w5OAUuGu8w","label":"Brass"},{"link":"https://youtu.be/_2Vc_k8Tqgg","label":""},{"link":"https://youtu.be/rcSK4Ep4Um4","label":""},{"link":"https://youtu.be/NLSq2PV2WNg","label":""}],"my_likes":[{"link":"https://youtu.be/9w5OAUuGu8w","label":"Brass"},{"link":"https://youtu.be/_2Vc_k8Tqgg","label":""},{"link":"https://youtu.be/d4EcpA78Fcg","label":""},{"link":"https://youtu.be/rcSK4Ep4Um4","label":""},{"link":"https://youtu.be/1airplq2v2s","label":""},{"link":"https://youtu.be/225qTJRs9gE","label":""},{"link":"https://youtu.be/Tcb0ipQF5pU","label":""},{"link":"https://youtu.be/vuJ2V-9GhBo","label":""},{"link":"https://youtu.be/-5pN-p8qRoM","label":""},{"link":"https://youtu.be/LN0SWHTbgGM","label":""},{"link":"https://youtu.be/zKLFoTrsS2I","label":""},{"link":"https://youtu.be/RGSMixtN_7k","label":""},{"link":"https://youtu.be/FyZWr2wm8B0","label":""},{"link":"https://youtu.be/WUu0YvPX69E","label":""},{"link":"https://youtu.be/dfk6i41GCNo","label":""},{"link":"https://youtu.be/NLSq2PV2WNg","label":""},{"link":"https://youtu.be/naY7omm4-iI","label":""},{"link":"https://youtu.be/rWy1w7WXeq0","label":""},{"link":"https://youtu.be/ST44PvR5xR4","label":""},{"link":"https://youtu.be/9J85VEM45sw","label":""},{"link":"https://youtu.be/Nge5fpC_5iU","label":""},{"link":"https://youtu.be/uYN0VbbQTP8","label":""},{"link":"https://youtu.be/Y7n5JX0zxSw","label":""},{"link":"https://youtu.be/enOtfOGqm-0","label":""},{"link":"https://youtu.be/gPZjxwEFCZw","label":""},{"link":"https://youtu.be/DtVWuWWJ_cM","label":""},{"link":"https://youtu.be/EDt3rQxb_mU","label":""},{"link":"https://youtu.be/Qge8Jk5oXmw","label":""},{"link":"https://youtu.be/OPvx_3uR93U","label":""},{"link":"https://youtu.be/vd3cv_FW5Jo","label":""},{"link":"https://youtu.be/LszrNDvIivU","label":""},{"link":"https://youtu.be/pd6agz_qL4c","label":""},{"link":"https://youtu.be/q8XQRfTgaCE","label":""},{"link":"https://youtu.be/Aeb2oy4Qi4E","label":""},{"link":"https://youtu.be/evHIaUZ0KtQ","label":""},{"link":"https://youtu.be/c_sNBS-9Ras","label":""},{"link":"https://youtu.be/mVw5KiGwqaQ","label":""},{"link":"https://youtu.be/V_lF4cP3ifM","label":""},{"link":"https://youtu.be/Yv4P63jJEoI","label":""},{"link":"https://youtu.be/lygg5Ju0nNU","label":""},{"link":"https://youtu.be/n55j6OfP25k","label":""},{"link":"https://youtu.be/pTLecrGrWY4","label":""},{"link":"https://youtu.be/hCFxVNm98Rs","label":""},{"link":"https://youtu.be/d2xrFAJMIq0","label":""},{"link":"https://youtu.be/2Q0ezAeUlXg","label":""},{"link":"https://youtu.be/caAWiyz4Z1Y","label":""},{"link":"https://youtu.be/DeiZes4wFnQ","label":""},{"link":"https://youtu.be/deopIvnjJSs","label":""},{"link":"https://youtu.be/ILc46etFjcc","label":""},{"link":"https://youtu.be/rcSK4Ep4Um4","label":""},{"link":"https://youtu.be/pS5d77DQHOI","label":""},{"link":"https://youtu.be/trqszNocEhI","label":""},{"link":"https://youtu.be/jtsHy6KMtsA","label":""},{"link":"https://youtu.be/fTFxE32onKs","label":""},{"link":"https://youtu.be/iR1sAex__VA","label":""},{"link":"https://youtu.be/kQ4-R5kBkp0","label":""},{"link":"https://youtu.be/Ah0srVZq9ac","label":""},{"link":"https://youtu.be/Xugs-grBc0g","label":""},{"link":"https://youtu.be/MBfdsAt1zME","label":""},{"link":"https://youtu.be/gYuT13E9JX8","label":""},{"link":"https://youtu.be/YJ9l4hHQVrA","label":""},{"link":"https://youtu.be/QrnNEQAOLKw","label":""},{"link":"https://youtu.be/hqDShBBrJ5A","label":""},{"link":"https://youtu.be/64oYM_ZVoT8","label":""},{"link":"https://youtu.be/pSVbF6DGH9U","label":""},{"link":"https://youtu.be/r6FVk2k4qsM","label":""},{"link":"https://youtu.be/gne9jY-EDm4","label":""},{"link":"https://youtu.be/iCV7IoVGYgo","label":""},{"link":"https://youtu.be/82y4XIYue0c","label":""},{"link":"https://youtu.be/rlQ0NdDsaw8","label":""},{"link":"https://youtu.be/ozcKdmjFE1I","label":""},{"link":"https://youtu.be/1f053VrnFZk","label":""},{"link":"https://youtu.be/YuuxEgx-dVE","label":""},{"link":"https://youtu.be/Los42buIecE","label":""},{"link":"https://youtu.be/A5wBk9946Ew","label":""},{"link":"https://youtu.be/aaIjs8K3oYo","label":""},{"link":"https://youtu.be/W4C-NEWrnSQ","label":""},{"link":"https://youtu.be/pn-1EEvYc6k","label":""},{"link":"https://youtu.be/AilByibCKWc","label":""},{"link":"https://youtu.be/qRHM9uMRgsM","label":""},{"link":"https://youtu.be/swweNLvmSf8","label":""},{"link":"https://youtu.be/uC6Z_HtSd-A","label":""},{"link":"https://youtu.be/K7SEc_dFQZY","label":""},{"link":"https://youtu.be/9usU9GvqovQ","label":""},{"link":"https://youtu.be/e1c0s82UHfA","label":""},{"link":"https://youtu.be/7cPhKwRF4oY","label":""},{"link":"https://youtu.be/dCErEM6h-k0","label":""},{"link":"https://youtu.be/NkRkuI0ZgX0","label":""},{"link":"https://youtu.be/O6insUApfwU","label":""},{"link":"https://youtu.be/-QHha1zko1A","label":""},{"link":"https://youtu.be/5usk6azyvYI","label":""},{"link":"https://youtu.be/qAPZoXecOzY","label":""},{"link":"https://youtu.be/Y9i2rPVSEok","label":""},{"link":"https://youtu.be/wNDNeGgY8TU","label":""},{"link":"https://youtu.be/fLqOvpK72FM","label":""},{"link":"https://youtu.be/VrtjHK8c6Ec","label":""},{"link":"https://youtu.be/Ypw7cVsnQxU","label":""},{"link":"https://youtu.be/KQ8pG-d40aA","label":""},{"link":"https://youtu.be/c8df7fD-Ox8","label":""},{"link":"https://youtu.be/dslO-3GgenY","label":""},{"link":"https://youtu.be/ejyA22n-_mc","label":""},{"link":"https://youtu.be/iNi68-YdXTE","label":""},{"link":"https://youtu.be/kPeMSkAUkA0","label":""},{"link":"https://youtu.be/9JQU_3Mx6xY","label":""},{"link":"https://youtu.be/Eht9W25tDZo","label":""},{"link":"https://youtu.be/7neipvZ_H0c","label":""},{"link":"https://youtu.be/bPjHDXLGG4U","label":""},{"link":"https://youtu.be/BJ0xBCwkg3E","label":""},{"link":"https://youtu.be/xIsIa9vjiIc","label":""},{"link":"https://youtu.be/F22DCvJ24Eg","label":""},{"link":"https://youtu.be/8a0thYvYCNE","label":""},{"link":"https://youtu.be/3MRSLSQdelI","label":""},{"link":"https://youtu.be/VWQ-e0qXX0M","label":""},{"link":"https://youtu.be/33sBoClL16o","label":""},{"link":"https://youtu.be/68ugkg9RePc","label":""},{"link":"https://youtu.be/B63qlootuG0","label":""},{"link":"https://youtu.be/62floj37NhM","label":""},{"link":"https://youtu.be/roEMP474x_Q","label":""},{"link":"https://youtu.be/i9BupglHdtM","label":""},{"link":"https://youtu.be/ReBDW-yyymtyo","label":""},{"link":"https://youtu.be/mfJhMfOPWdE","label":""},{"link":"https://youtu.be/btrzs54s1Rc","label":""},{"link":"https://youtu.be/OFWT4yfPdjo","label":""},{"link":"https://youtu.be/cNcy3J4x62M","label":""},{"link":"https://youtu.be/TW9d8vYrVFQ","label":""},{"link":"https://youtu.be/fzNMd3Tu1Zw","label":""},{"link":"https://youtu.be/ZQTd8_838Oc","label":""},{"link":"https://youtu.be/Jxbu80okI_U","label":""},{"link":"https://youtu.be/ADlGkXAz1D0","label":""},{"link":"https://youtu.be/SsFI40bXROs","label":""},{"link":"https://youtu.be/RhMYBfF7-hE","label":""},{"link":"https://youtu.be/SQHdFAm7g7E","label":""},{"link":"https://youtu.be/ng3XUABcwDw","label":""},{"link":"https://youtu.be/ULTtWUZhD9c","label":""},{"link":"https://youtu.be/_ovdm2yX4MA","label":""},{"link":"https://youtu.be/dwtHuPlSZ3Y","label":""},{"link":"https://youtu.be/_iBPt1aoA7E","label":""},{"link":"https://youtu.be/YTIDHSRA9xk","label":""},{"link":"https://youtu.be/cE0wfjsybIQ","label":""},{"link":"https://youtu.be/msSc7Mv0QHY","label":""},{"link":"https://youtu.be/mxzgwJ8tSE0","label":""},{"link":"https://youtu.be/fKopy74weus","label":""},{"link":"https://youtu.be/wnJ6LuUFpMo","label":""},{"link":"https://youtu.be/cdNgo-E95f0","label":""},{"link":"https://youtu.be/wyx6JDQCslE","label":""},{"link":"https://youtu.be/Bznxx12Ptl0","label":""},{"link":"https://youtu.be/t4H_Zoh7G5A","label":""},{"link":"https://youtu.be/y6Sxv-sUYtM","label":""},{"link":"https://youtu.be/HAFVJAKpzFk","label":""},{"link":"https://youtu.be/1t_sMynan_k","label":""},{"link":"https://youtu.be/5ArkY_x-bI4","label":""}]}
@@ -79,9 +162,12 @@
         var sync_request_off = false
         var autoload_list
         var youtube_name_get_loop = false
+        var youtube_name_get_loop_name
         var global_vol = 25
+        var load_playlist_list_name
+        var advanced_controls_now = false
         const formatter = new Intl.NumberFormat('en-US', {
-            minimumFractionDigits: 2,
+            minimumFractionDigits: 0,
             maximumFractionDigits: 2,
         });
         document.getElementById("ws").value = "ws://" + window.location.hostname + ":8765"
@@ -91,7 +177,13 @@
         document.getElementById("advanced").hidden = true
         document.getElementById("autoload-warning").hidden = true
 
+        // document.getElementById("qrScanner").width = window.innerWidth / 2
+        // document.getElementById("qrScanner").height = window.innerWidth / 2 / 16 * 9
+        // document.getElementById("qrScanner").hidden = true
+
         function startup_commnads() {
+            input_clear()
+
             ws_connect()
         }
 
@@ -129,12 +221,13 @@
                         document.getElementById("label").value = message_json.note
                         youtube_name_enable = false
                         if (youtube_name_get_loop == true) {
-                            queue_set("my_likes")
+                            queue_set(youtube_name_get_loop_name)
                         }
                     }
                 }
                 if (message_json.command == "media_youtube_video_offline") {
                     document.getElementById("url").value = message_json.url
+                    document.getElementById("subs").value = message_json.subs
                 }
                 if (message_json.command == "autoload") {
                     if (document.getElementById("autoload_toggle").checked == true) {
@@ -143,6 +236,12 @@
                     if (document.getElementById("autoload_toggle_off_alert").checked == true) {
                         document.getElementById("autoload-warning").hidden = false
                     }
+                }
+                if (message_json.command == "queue_load_playlist_response") {
+                    if (load_playlist_list_name != undefined) {
+                        message_json.link_array.forEach(queue_load_playlist_forloop)
+                    }
+                    load_playlist_list_name
                 }
                 if (message_json.command == "vol_set") {
                     global_vol = message_json["vol"]
@@ -163,6 +262,10 @@
             document.getElementById("prewiew_buttons").hidden = false
             document.getElementById("advanced").hidden = false
             document.getElementById("show_advanced_button").hidden = true
+        }
+        function show_advanced_controls() {
+            advanced_controls_now = advanced_controls_now != true
+            document.getElementsByName("advanced_player_controls").forEach((advanced_controls_split) => (advanced_controls_split.hidden = advanced_controls_now))
         }
 
         function vol_set(set_vol) {
@@ -202,13 +305,11 @@
         function loadcontent() {
             socket.send(JSON.stringify({ "command": "media_frame_load" }))
         }
-        function loadaudiocontent() {
-            socket.send(JSON.stringify({ "command": "media_frame_load_audio" }))
-        }
 
         function play() {
             var jsonsend = { "command": "media_play", "link": "" }
             jsonsend["link"] = document.getElementById("url").value
+            jsonsend["subs"] = document.getElementById("subs").value
             socket.send(JSON.stringify(jsonsend));
             sync_now()
             document.getElementById("autoload-warning").hidden = true
@@ -246,10 +347,13 @@
             socket.send(JSON.stringify({ "command": "media_play_youtube_name", "link": document.getElementById("url").value }))
             youtube_name_enable = true
         }
+        function queue_load_name_loop(list_name) {
+            youtube_name_get_loop_name = list_name
+        }
         function youtube_video_play() {
             socket.send(JSON.stringify({ "command": "media_play_youtube", "link": document.getElementById("url").value }))
         }
-        function youtube_video_play() {
+        function youtube_video_offline() {
             socket.send(JSON.stringify({ "command": "media_youtube_offline", "link": document.getElementById("url").value }))
         }
         function autoload_play() {
@@ -274,6 +378,15 @@
 
         }
 
+        function queue_load_playlist(list_name) {
+            load_playlist_list_name = list_name
+            socket.send(JSON.stringify({ "command": "queue_load_playlist", "link": document.getElementById("url").value }))
+        }
+        function queue_load_playlist_forloop(playlist_val) {
+            document.getElementById("url").value = "https://youtu.be/" + playlist_val
+            queue_add(load_playlist_list_name)
+        }
+
         function queue_add(list_name) {
             queue[list_name].push({ "link": document.getElementById("url").value, "label": document.getElementById("label").value })
             document.getElementById("url").value = ""
@@ -291,6 +404,11 @@
         }
         function queue_get(list_name) {
             var queue_index = document.getElementsByName(list_name)[2].value
+            if (youtube_name_get_loop == true) {
+                if (queue[list_name][queue_index] = undefined) {
+                    youtube_name_get_loop = false
+                }
+            }
             document.getElementById("url").value = queue[list_name][queue_index].link
             document.getElementById("label").value = queue[list_name][queue_index].label
             lists_update_data()
@@ -359,15 +477,40 @@
             }
         }
         function lists_update() {
-            document.getElementById("controls").innerHTML = ""
+            document.getElementById("controls").innerHTML = null
             for (let i = 0; i < queue.list_input_vals.length; i++) {
-                var list_name = queue["lists"][i]
-                document.getElementById("controls").innerHTML = document.getElementById("controls").innerHTML + `<div name=` + list_name + ` id="queue_controls"><p name=` + list_name + ` id="queue_name">` + list_name + ` controls:</p><div><button type="button"onclick="queue_add('` + list_name + `')">add</button><button type="button"onclick="queue_set('` + list_name + `')">set</button><button type="button"onclick="queue_get('` + list_name + `')">get</button><button type="button"onclick="queue_remove('` + list_name + `')">remove</button><button type="button"onclick="queue_splice('` + list_name + `')">splice</button><button type="button"onclick="queue_insert('` + list_name + `')">insert</button>index<input name=` + list_name + ` id="index" type="number" width="10"><button type="button"onclick="queue_play_next('` + list_name + `')">next</button><button type="button"onclick="queue_play_next_youtube('` + list_name + `')">next youtube</button>index<input name=` + list_name + ` id="index_play" type="number" width="10"> autoplay select <input type="checkbox" name=` + list_name + ` id="autoload_select" onclick="autoload_select('` + list_name + `')" name=` + list_name + `"></div></div><p name=` + list_name + ` id="queue" style="overflow-y: scroll;width: 1000px;height: 100px;"></p></div>`
+                var list_name = queue.lists[i]
+                document.getElementById("controls").innerHTML = document.getElementById("controls").innerHTML + `
+                <div name=` + list_name + ` id="queue_controls">
+                <p name=` + list_name + ` id="queue_name">` + list_name + ` controls:</p>
+                <div>
+                <button type="button" onclick="queue_add('` + list_name + `')">add</button>
+                <button type="button" onclick="queue_set('` + list_name + `')">set</button>
+                <button type="button" onclick="queue_get('` + list_name + `')">get</button>
+                <button type="button" onclick="queue_remove('` + list_name + `')">remove</button>
+                <button type="button" onclick="queue_splice('` + list_name + `')">splice</button>
+                <button type="button" onclick="queue_insert('` + list_name + `')">insert</button>
+                index<input name=` + list_name + ` id="index" type="number" width="10">
+                </div><div>
+                <button type="button" onclick="queue_play_next('` + list_name + `')">next</button>
+                <button type="button" onclick="queue_play_next_youtube('` + list_name + `')">next youtube</button>
+                index<input name=` + list_name + ` id="index_play" type="number" width="10">
+                </div><div name="advanced_player_controls">
+                autoplay select<input type="checkbox" name=` + list_name + ` id="autoload_select" onclick="autoload_select('` + list_name + `')" name=` + list_name + `">
+                <button type="button" onclick="queue_load_playlist('` + list_name + `')">load playlist</button>
+                <button type="button" onclick="queue_load_name_loop('` + list_name + `')">name loop</button>
+                </div>
+                <p name=` + list_name + ` id="queue" style="overflow-y: scroll;width: 1000px;height: 100px;font-size: small;"></p>
+                </div>`
             }
             for (let temp = 0; temp < queue.list_input_vals.length; temp++) {
-                queue.list_input_vals[temp]["list"]
-                document.getElementsByName(queue.list_input_vals[temp]["list"])[2].value = queue.list_input_vals[temp]["list_input_index"]
-                document.getElementsByName(queue.list_input_vals[temp]["list"])[3].value = queue.list_input_vals[temp]["list_input_index_play"]
+                try {
+                    queue.list_input_vals[temp]["list"]
+                    document.getElementsByName(queue.list_input_vals[temp]["list"])[2].value = queue.list_input_vals[temp]["list_input_index"]
+                    document.getElementsByName(queue.list_input_vals[temp]["list"])[3].value = queue.list_input_vals[temp]["list_input_index_play"]
+                } catch (error) {
+                    console.log(error);
+                }
             }
             lists_update_data()
             vol_update()
@@ -379,6 +522,51 @@
             sync_request_off = true
             socket.send(JSON.stringify({ "command": "sync_request" }))
         }
+
+        function qrdialog(input) {
+            document.getElementById("url").value = input
+            youtube_video_name()
+            document.getElementById("mydialog").style.display = "block";
+            document.getElementsByClassName("dialog-body")[0].innerHTML = ""
+            for (let i = 0; i < queue.lists.length; i++) {
+                var list_name = queue.lists[i]
+                document.getElementsByClassName("dialog-body")[0].innerHTML = document.getElementsByClassName("dialog-body")[0].innerHTML + `<div><input type="checkbox" class="qrdialog" id="qrdialog` + list_name + `">` + list_name + `</div>`
+            }
+        }
+        function qrdialog_start() {
+            document.getElementById("qrScanner").hidden = false
+            document.getElementById("qrScanner").contentWindow.postMessage(JSON.stringify({ "command": "qrscanstart" }), "*")
+        }
+        function qrdialog_stop() {
+            document.getElementById("qrScanner").hidden = true
+            document.getElementById("qrScanner").contentWindow.postMessage(JSON.stringify({ "command": "qrscanstop" }), "*")
+        }
+        document.getElementsByClassName("close")[0].onclick = function () {
+            qrdialogsave()
+        }
+        window.onclick = function (event) {
+            if (event.target == document.getElementById("mydialog")) {
+                qrdialogsave()
+            }
+        }
+
+        function qrdialogsave() {
+            for (let i = 0; i < queue.lists.length; i++) {
+                var list_name = "qrdialog" + queue.lists[i]
+                if (window.getElementsByClassName(qrdialog).getElementById(list_name).checked) {
+                    queue_add(queue.lists[i])
+                }
+            }
+            document.getElementById("mydialog").style.display = "none";
+        }
+
+        window.addEventListener("message", (event) => {
+            var message_json = JSON.parse(event.data)
+            if (message_json.command == "qrscanned") {
+                document.getElementById("qrScanner").hidden = true
+                qrdialog(message_json.message)
+            }
+        }, false);
         window.addEventListener('DOMContentLoaded', (event) => {
             startup_commnads()
         });

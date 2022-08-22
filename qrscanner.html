@@ -4,20 +4,15 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Player pairing</title>
+    <title>qr scanner</title>
 </head>
 
 <body>
     <video id="qrvideo" height="auto"></video>
-    <div id="buutons">
-        <button type="button" onclick="qr_stop()">qr scan stop</button>
-        <button type="button" onclick="qr_start()">qr scan start</button>
-        <input type="file" id="qrfile">
-    </div>
 
     <script>
-        document.getElementById("qrvideo").width = window.innerWidth
-        document.getElementById("qrvideo").height = window.innerHeight / 2
+        document.getElementById("qrvideo").width = window.innerWidth - 1
+        document.getElementById("qrvideo").height = window.innerHeight - 1
         var ws_send_type
         var qrScanner
         var qrdata
@@ -33,11 +28,19 @@
         window.addEventListener('DOMContentLoaded', (event) => {
             qrScanner.start();
         });
+        window.addEventListener("message", (event) => {
+            var message_json = JSON.parse(event.data)
+            if (message_json.command == "qrscanstart") {
+                qr_start()
+            }
+            if (message_json.command == "qrscanstop") {
+                qr_stop()
+            }
+        }, false);
         function qrcodefound(result) {
             qrScanner.stop();
             console.log(result);
-            qrdata = JSON.parse(decodeURIComponent(result["data"].split("#")[1]))
-            window.location.href = "http://" + qrdata.ip + ":" + qrdata.port + "/qrchooser.html#" + result["data"].split("#")[1]
+            window.top.postMessage(JSON.stringify({ "command": "qrscanned", "message": result["data"] }), "*")
         }
         function qr_start() {
             qrScanner.start();
@@ -45,15 +48,6 @@
         function qr_stop() {
             qrScanner.stop();
         }
-        document.getElementById("qrfile").addEventListener('change', event => {
-        const file = fileSelector.files[0];
-        if (!file) {
-            return;
-        }
-            QrScanner.scanImage(file)
-            .then(result => qrcodefound(result))
-            .catch(error => console.log(error || 'No QR code found.'));
-        })
     </script>
 </body>
 

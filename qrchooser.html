@@ -31,8 +31,7 @@
         var ws_send_type
         var qrdata
         var socket
-    </script>
-    <script>
+        
         window.addEventListener('DOMContentLoaded', (event) => {
             qrdata = JSON.parse(decodeURIComponent(window.location.hash.split("#")[1]))
             ws_connect(window.location.hostname)
